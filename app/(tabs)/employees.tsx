@@ -10,8 +10,8 @@ import {
 } from "react-native";
 import { getDatabase, ref, onValue, off, remove } from "firebase/database";
 import { NavigationProp } from "@react-navigation/native";
-import { Employee } from "../constants/Types"; // Ensure you have a types file for shared types
-import { RootStackParamList } from "../app/(tabs)/index";
+import { Employee } from "../../constants/Types"; // Ensure you have a types file for shared types
+import { RootStackParamList } from "./index";
 import { db } from "@/firebaseConfig";
 import { useAuth } from "@/context/AuthContext";
 
