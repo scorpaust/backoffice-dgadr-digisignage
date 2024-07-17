@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   View,
   Text,
@@ -10,10 +10,10 @@ import {
 } from "react-native";
 import { getDatabase, ref, onValue, off, remove } from "firebase/database";
 import { NavigationProp } from "@react-navigation/native";
-import { Employee } from "../../constants/Types"; // Ensure you have a types file for shared types
-import { RootStackParamList } from "./index";
+import { Employee } from "../constants/Types"; // Ensure you have a types file for shared types
+import { RootStackParamList } from "../app/(tabs)/index";
 import { db } from "@/firebaseConfig";
-import { useAuth } from "@/context/AuthContext";
+import { AuthContext } from "../context/AuthContext";
 
 interface EmployeeListScreenProps {
   navigation: NavigationProp<RootStackParamList, "Employees">;
@@ -23,11 +23,12 @@ const EmployeeListScreen: React.FC<EmployeeListScreenProps> = ({
   navigation,
 }) => {
   const [employees, setEmployees] = useState<Employee[]>([]);
-  const { signOut } = useAuth();
+
+  const authCtx = useContext(AuthContext);
 
   useEffect(() => {
     const db = getDatabase();
-    const employeesRef = ref(db, "/employees");
+    const employeesRef = ref(db, `/employees`);
     const listener = onValue(employeesRef, (snapshot) => {
       const data = snapshot.val();
       const employeesList = data
@@ -45,7 +46,7 @@ const EmployeeListScreen: React.FC<EmployeeListScreenProps> = ({
   const handleDelete = async (id: string) => {
     console.log(`handleDelete called for id: ${id}`);
     try {
-      await remove(ref(db, `/employees/${id}`));
+      await remove(ref(db, `/employees/${id}?auth=${authCtx.token}`));
       console.log(`Successfully deleted employee with id: ${id}`);
       Alert.alert("Success", "Employee deleted successfully");
     } catch (error) {
@@ -62,7 +63,9 @@ const EmployeeListScreen: React.FC<EmployeeListScreenProps> = ({
           navigation.navigate("EditEmployee", { employee: undefined })
         }
       />
-      <Button title="Sair" onPress={() => signOut} />
+      <View style={styles.exitButton}>
+        <Button title="Sair" onPress={authCtx.logout} />
+      </View>
       <FlatList
         data={employees}
         keyExtractor={(item) => item.id}
@@ -76,7 +79,7 @@ const EmployeeListScreen: React.FC<EmployeeListScreenProps> = ({
               <Text style={styles.employeeName}>{item.name}</Text>
             </TouchableOpacity>
             <Button
-              title="Delete"
+              title="Apagar"
               onPress={() => {
                 console.log(`Delete button pressed for id: ${item.id}`);
                 Alert.alert("Test", "This is a test alert");
@@ -94,6 +97,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
+  },
+  exitButton: {
+    marginTop: 16,
   },
   employeeContainer: {
     flexDirection: "row",

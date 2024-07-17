@@ -1,104 +1,48 @@
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  ReactNode,
-  ReactElement,
-} from "react";
-import {
-  Auth,
-  AuthErrorMap,
-  getAuth,
-  onAuthStateChanged,
-  signInWithEmailAndPassword,
-  signOut,
-  User,
-} from "firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { firebase } from "@/firebaseConfig";
-
-let auth: Auth | null = null;
-
-if (firebase) {
-  auth = getAuth();
-}
+import React, { createContext, useState, ReactNode } from "react";
+import useEffect from "react";
 
 interface AuthContextType {
-  user?: User | null;
-  loading?: boolean;
-  signIn?: (email: string, password: string) => Promise<void>;
-  signOut?: () => Promise<void>;
+  token: string | null;
+  isAuthenticated: boolean;
+  authenticate: (token: string) => void;
+  logout: () => void;
 }
 
-export const AuthContext = createContext<AuthContextType | undefined>(
-  undefined
-);
+export const AuthContext = createContext<AuthContextType>({
+  token: null,
+  isAuthenticated: false,
+  authenticate: () => {},
+  logout: () => {},
+});
 
-export const useAuth = (): AuthContextType => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
-};
-
-interface AuthProviderProps {
+interface AuthContextProviderProps {
   children: ReactNode;
 }
 
-export const AuthProvider: React.FC<AuthProviderProps> = ({
+const AuthContextProvider: React.FC<AuthContextProviderProps> = ({
   children,
-}: AuthProviderProps): ReactElement => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+}) => {
+  const [authToken, setAuthToken] = useState<string | null>(null);
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(getAuth(), async (user) => {
-      if (user) {
-        setUser(user);
-        await AsyncStorage.setItem("user", JSON.stringify(user));
-      } else {
-        setUser(null);
-        await AsyncStorage.removeItem("user");
-      }
-      setLoading(false);
-    });
+  function authenticate(token: string) {
+    setAuthToken(token);
+    AsyncStorage.setItem("token", token);
+  }
 
-    return () => unsubscribe();
-  }, []);
+  function logout() {
+    setAuthToken(null);
+    AsyncStorage.removeItem("token");
+  }
 
-  const signIn = async (email: string, password: string) => {
-    setLoading(true);
-    try {
-      const userCredential = await signInWithEmailAndPassword(
-        getAuth(),
-        email,
-        password
-      );
-      setUser(userCredential.user);
-      await AsyncStorage.setItem("user", JSON.stringify(userCredential.user));
-    } finally {
-      setLoading(false);
-    }
+  const value: AuthContextType = {
+    token: authToken,
+    isAuthenticated: !!authToken,
+    authenticate: authenticate,
+    logout: logout,
   };
 
-  const signOut = async () => {
-    setLoading(true);
-    try {
-      await signOut();
-      setUser(null);
-      await AsyncStorage.removeItem("user");
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <AuthContext.Provider value={{ user, loading, signIn, signOut }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
+
+export default AuthContextProvider;

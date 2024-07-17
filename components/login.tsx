@@ -1,5 +1,5 @@
-import { useAuth } from "@/context/AuthContext";
-import React, { useState } from "react";
+import { authenticate } from "@/utils/Auth";
+import React, { useContext, useState } from "react";
 import { View, Text, TextInput, Button, StyleSheet, Alert } from "react-native";
 import {
   firebase,
@@ -7,6 +7,8 @@ import {
   auth,
   signInWithEmailAndPassword,
 } from "../firebaseConfig"; // Adjust the path as needed
+import LoadingOverlay from "./LoadingOverlay";
+import { AuthContext } from "../context/AuthContext";
 
 interface NavigationProps {
   navigation: {
@@ -14,41 +16,57 @@ interface NavigationProps {
   };
 }
 
+type LoginCredentials = {
+  email: string;
+  password: string;
+};
+
 const LoginScreen: React.FC<NavigationProps> = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { signIn } = useAuth();
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
 
-  const handleLogin = async () => {
-    if (signIn) {
-      try {
-        await signIn(email, password);
-        navigation.replace("Employees");
-      } catch (error) {
-        console.error(error);
-      }
-    } else {
-      Alert.alert("Auth Error", "SignIn function is not available");
+  const authCtx = useContext(AuthContext);
+
+  async function signInHandler(credentials: LoginCredentials) {
+    setIsAuthenticating(true);
+    try {
+      const token = await authenticate(credentials.email, credentials.password);
+      authCtx.authenticate(token);
+      setIsAuthenticating(false);
+    } catch (error) {
+      setIsAuthenticating(false);
+      alert(
+        "Falha na Autenticação! Por favor, verifique as suas credenciais de acesso ou tente aceder, de novo, mais tarde."
+      );
     }
-  };
+  }
+
+  function handlePress() {
+    signInHandler({ email, password });
+  }
+
+  if (isAuthenticating) {
+    return <LoadingOverlay message="Autenticando utilizador..." />;
+  }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Admin Login</Text>
+      <Text style={styles.title}>Autenticação para Administração</Text>
       <TextInput
         style={styles.input}
-        placeholder="Email"
+        placeholder="Endereço eletrónico"
         value={email}
         onChangeText={setEmail}
       />
       <TextInput
         style={styles.input}
-        placeholder="Password"
+        placeholder="Senha"
         value={password}
         onChangeText={setPassword}
         secureTextEntry
       />
-      <Button title="Login" onPress={handleLogin} />
+      <Button title="Entrar" onPress={handlePress} />
     </View>
   );
 };

@@ -1,37 +1,88 @@
 import { createStackNavigator } from "@react-navigation/stack";
 import LoginScreen from "../../components/login";
-import EmployeeListScreen from "./employees";
+import EmployeeListScreen from "../../screens/employees";
 import EmployeeEditScreen from "../../components/employees_edit";
 import { Employee } from "../../constants/Types"; // Ensure you have a types file for shared types
-import { AuthProvider } from "@/context/AuthContext";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
+import AuthContextProvider from "@/context/AuthContext";
 import { AuthContext } from "../../context/AuthContext";
+import { NavigationContainer } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import AppLoading from "expo-app-loading";
 
 export type RootStackParamList = {
-  Login: undefined;
-  Employees: undefined;
-  EditEmployee: { employee?: Employee };
+  Login?: undefined;
+  Employees?: undefined;
+  EditEmployee?: { employee?: Employee };
 };
 
-function App() {
-  const Stack = createStackNavigator<RootStackParamList>();
+const Stack = createStackNavigator<RootStackParamList>();
 
-  const ctx = useContext(AuthContext);
-
+function AuthStack() {
   return (
-    <AuthProvider>
-      <Stack.Navigator
-        initialRouteName="Login"
-        screenOptions={{ headerShown: false }}
-      >
-        {!ctx?.user && <Stack.Screen name="Login" component={LoginScreen} />}
-        {ctx?.user && (
-          <Stack.Screen name="Employees" component={EmployeeListScreen} />
-        )}
-        <Stack.Screen name="EditEmployee" component={EmployeeEditScreen} />
-      </Stack.Navigator>
-    </AuthProvider>
+    <Stack.Navigator
+      initialRouteName="Login"
+      screenOptions={{ headerShown: false }}
+    >
+      <Stack.Screen name="Login" component={LoginScreen} />
+    </Stack.Navigator>
+  );
+}
+
+function AuthenticatedStack() {
+  return (
+    <Stack.Navigator
+      initialRouteName="Employees"
+      screenOptions={{ headerShown: false }}
+    >
+      <Stack.Screen name="Employees" component={EmployeeListScreen} />
+
+      <Stack.Screen name="EditEmployee" component={EmployeeEditScreen} />
+    </Stack.Navigator>
+  );
+}
+
+function Navigation() {
+  const authCtx = useContext(AuthContext);
+
+  if (authCtx.isAuthenticated) {
+    return <AuthenticatedStack />;
+  }
+
+  return <AuthStack />;
+}
+
+function Root() {
+  const [isTryingLogin, setIsTryingLogin] = useState(false);
+
+  const authCtx = useContext(AuthContext);
+
+  useEffect(() => {
+    async function fetchToken() {
+      const storedToken = await AsyncStorage.getItem("token");
+
+      if (storedToken) {
+        authCtx.authenticate(storedToken);
+      }
+
+      setIsTryingLogin(false);
+    }
+
+    fetchToken();
+  }, []);
+
+  if (isTryingLogin) {
+    return <AppLoading />;
+  }
+
+  return <Navigation />;
+}
+
+function App() {
+  return (
+    <AuthContextProvider>
+      <Navigation />
+    </AuthContextProvider>
   );
 }
 
