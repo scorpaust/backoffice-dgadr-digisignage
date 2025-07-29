@@ -1,19 +1,8 @@
-import axios from "axios";
-
-const API_KEY = process.env.EXPO_PUBLIC_FIREBASE_API_KEY;
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../firebaseConfig"; // é o auth da SDK
 
 export async function authenticate(email: string, password: string) {
-  const response = await axios.post(
-    "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=" +
-      API_KEY,
-    {
-      email: email,
-      password: password,
-      returnSecureToken: true,
-    }
-  );
-
-  const token = response.data.idToken;
-
-  return token;
+  const userCred = await signInWithEmailAndPassword(auth, email, password);
+  // A SDK já guarda internamente o ID Token e refresha-o quando expirar
+  return userCred.user.getIdToken(); // Opcional, caso ainda precise do token para algo
 }

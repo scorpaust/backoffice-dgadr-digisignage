@@ -46,12 +46,12 @@ const EmployeeListScreen: React.FC<EmployeeListScreenProps> = ({
   const handleDelete = async (id: string) => {
     console.log(`handleDelete called for id: ${id}`);
     try {
-      await remove(ref(db, `/employees/${id}?auth=${authCtx.token}`));
-      console.log(`Successfully deleted employee with id: ${id}`);
-      Alert.alert("Success", "Employee deleted successfully");
+      await remove(ref(db, `/employees/${id}`));
+      console.log(`Removido trabalhador com id: ${id}`);
+      Alert.alert("Trabalhador removido com sucesso.");
     } catch (error) {
-      console.error(`Failed to delete employee with id: ${id}`, error);
-      Alert.alert("Error", `Failed to delete employee`);
+      console.error(`Falha na remoção de trabalhador com id: ${id}`, error);
+      Alert.alert("Falha a remover o trabalhador.");
     }
   };
 

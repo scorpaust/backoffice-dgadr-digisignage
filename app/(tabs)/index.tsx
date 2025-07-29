@@ -81,7 +81,7 @@ function Root() {
 function App() {
   return (
     <AuthContextProvider>
-      <Navigation />
+      <Root />
     </AuthContextProvider>
   );
 }
