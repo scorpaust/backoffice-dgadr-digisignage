@@ -81,11 +81,11 @@ const LoginScreen: React.FC = () => {
     const canSubmit = email.trim().length > 0 && password.trim().length > 0;
     return (
       <View style={styles.rootWeb}>
-        <View style={styles.webDebugBanner}>
+        {/**<View style={styles.webDebugBanner}>
           <Text style={{ color: "#fff", fontSize: 12 }}>
             WEB fallback ativo
           </Text>
-        </View>
+        </View>**/}
         <View
           onLayout={(e) => {
             // eslint-disable-next-line no-console

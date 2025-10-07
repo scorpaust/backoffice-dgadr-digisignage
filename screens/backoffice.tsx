@@ -243,7 +243,7 @@ const BackOfficeScreen: React.FC = () => {
   const scrollPadding = compact ? layout.spacing.lg : layout.spacing.xl;
   return (
     <SafeAreaView style={[styles.safeArea, { position: "relative" }]}>
-      <View
+      {/*<View
         style={{
           position: "absolute",
           top: 8,
@@ -256,7 +256,7 @@ const BackOfficeScreen: React.FC = () => {
         }}
       >
         <Text style={{ color: "#fff", fontSize: 12 }}>DEBUG: BO ativo</Text>
-      </View>
+      </View>*/}
       {Platform.OS === "web" ? (
         <View
           style={{

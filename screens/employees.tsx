@@ -1,6 +1,3 @@
-<<<<<<< Current (Your changes)
-export { default } from "./backoffice";
-=======
 import React, { useState, useEffect, useContext } from "react";
 import {
   View,
@@ -117,4 +114,3 @@ const styles = StyleSheet.create({
 });
 
 export default EmployeeListScreen;
->>>>>>> Incoming (Background Agent changes)
