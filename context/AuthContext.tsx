@@ -1,6 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import React, { createContext, useState, ReactNode } from "react";
-import useEffect from "react";
+import React, { createContext, useState, ReactNode, useEffect } from "react";
 
 interface AuthContextType {
   token: string | null;
@@ -24,6 +23,21 @@ const AuthContextProvider: React.FC<AuthContextProviderProps> = ({
   children,
 }) => {
   const [authToken, setAuthToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function loadStoredToken() {
+      try {
+        const storedToken = await AsyncStorage.getItem("token");
+        if (storedToken) {
+          setAuthToken(storedToken);
+        }
+      } catch (error) {
+        console.error("Failed to load stored token:", error);
+      }
+    }
+
+    loadStoredToken();
+  }, []);
 
   function authenticate(token: string) {
     setAuthToken(token);

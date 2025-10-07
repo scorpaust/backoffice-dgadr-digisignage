@@ -1,89 +1,41 @@
-import { createStackNavigator } from "@react-navigation/stack";
-import LoginScreen from "../../components/login";
-import EmployeeListScreen from "../../screens/employees";
-import EmployeeEditScreen from "../../components/employees_edit";
-import { Employee } from "../../constants/Types"; // Ensure you have a types file for shared types
-import React, { useContext, useEffect, useState } from "react";
-import AuthContextProvider from "@/context/AuthContext";
+import React, { useContext, useMemo } from "react";
+import { View, Text, StyleSheet } from "react-native";
 import { AuthContext } from "../../context/AuthContext";
-import { NavigationContainer } from "@react-navigation/native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import AppLoading from "expo-app-loading";
+import LoginScreen from "../../screens/login";
+import BackOfficeScreen from "../../screens/backoffice";
 
-export type RootStackParamList = {
-  Login?: undefined;
-  Employees?: undefined;
-  EditEmployee?: { employee?: Employee };
-};
-
-const Stack = createStackNavigator<RootStackParamList>();
-
-function AuthStack() {
-  return (
-    <Stack.Navigator
-      initialRouteName="Login"
-      screenOptions={{ headerShown: false }}
-    >
-      <Stack.Screen name="Login" component={LoginScreen} />
-    </Stack.Navigator>
-  );
-}
-
-function AuthenticatedStack() {
-  return (
-    <Stack.Navigator
-      initialRouteName="Employees"
-      screenOptions={{ headerShown: false }}
-    >
-      <Stack.Screen name="Employees" component={EmployeeListScreen} />
-
-      <Stack.Screen name="EditEmployee" component={EmployeeEditScreen} />
-    </Stack.Navigator>
-  );
-}
-
-function Navigation() {
+export default function HomeScreen() {
   const authCtx = useContext(AuthContext);
+  const isAuthed = !!authCtx.isAuthenticated;
 
-  if (authCtx.isAuthenticated) {
-    return <AuthenticatedStack />;
+  useMemo(() => {
+    // eslint-disable-next-line no-console
+    console.log("HomeScreen mounted. isAuthenticated:", isAuthed);
+  }, [isAuthed]);
+
+  if (!isAuthed) {
+    return <LoginScreen />;
   }
 
-  return <AuthStack />;
-}
-
-function Root() {
-  const [isTryingLogin, setIsTryingLogin] = useState(false);
-
-  const authCtx = useContext(AuthContext);
-
-  useEffect(() => {
-    async function fetchToken() {
-      const storedToken = await AsyncStorage.getItem("token");
-
-      if (storedToken) {
-        authCtx.authenticate(storedToken);
-      }
-
-      setIsTryingLogin(false);
-    }
-
-    fetchToken();
-  }, []);
-
-  if (isTryingLogin) {
-    return <AppLoading />;
-  }
-
-  return <Navigation />;
-}
-
-function App() {
   return (
-    <AuthContextProvider>
-      <Root />
-    </AuthContextProvider>
+    <View style={{ flex: 1 }}>
+      <Text style={styles.diagText}>Autenticado • Diagnóstico</Text>
+      <BackOfficeScreen />
+    </View>
   );
 }
 
-export default App;
+const styles = StyleSheet.create({
+  diagText: {
+    position: "absolute",
+    top: 8,
+    left: 8,
+    zIndex: 9999,
+    color: "#fff",
+    backgroundColor: "rgba(0,0,0,0.35)",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    fontSize: 12,
+  },
+});

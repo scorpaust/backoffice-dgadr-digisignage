@@ -1,6 +1,3 @@
-<<<<<<< Current (Your changes)
-export { default } from "./backoffice";
-=======
 import React, { useState, useEffect, useContext } from "react";
 import {
   View,
@@ -12,20 +9,14 @@ import {
   Alert,
 } from "react-native";
 import { getDatabase, ref, onValue, off, remove } from "firebase/database";
-import { NavigationProp } from "@react-navigation/native";
-import { Employee } from "../constants/Types"; // Ensure you have a types file for shared types
-import { RootStackParamList } from "../types/navigation";
-import { db } from "@/firebaseConfig";
-import { AuthContext } from "../context/AuthContext";
+import { Employee } from "../../constants/Types";
+import { AuthContext } from "../../context/AuthContext";
+import EmployeeEditSimple from "../../components/EmployeeEditSimple";
 
-interface EmployeeListScreenProps {
-  navigation: NavigationProp<RootStackParamList, "Employees">;
-}
-
-const EmployeeListScreen: React.FC<EmployeeListScreenProps> = ({
-  navigation,
-}) => {
+const EmployeesScreen: React.FC = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
 
   const authCtx = useContext(AuthContext);
 
@@ -49,6 +40,7 @@ const EmployeeListScreen: React.FC<EmployeeListScreenProps> = ({
   const handleDelete = async (id: string) => {
     console.log(`handleDelete called for id: ${id}`);
     try {
+      const db = getDatabase();
       await remove(ref(db, `/employees/${id}`));
       console.log(`Removido trabalhador com id: ${id}`);
       Alert.alert("Trabalhador removido com sucesso.");
@@ -58,13 +50,36 @@ const EmployeeListScreen: React.FC<EmployeeListScreenProps> = ({
     }
   };
 
+  const handleAddEmployee = () => {
+    setSelectedEmployee(null);
+    setIsEditing(true);
+  };
+
+  const handleEditEmployee = (employee: Employee) => {
+    setSelectedEmployee(employee);
+    setIsEditing(true);
+  };
+
+  const handleCloseEdit = () => {
+    setIsEditing(false);
+    setSelectedEmployee(null);
+  };
+
+  if (isEditing) {
+    return (
+      <EmployeeEditSimple
+        employee={selectedEmployee}
+        onClose={handleCloseEdit}
+      />
+    );
+  }
+
   return (
     <View style={styles.container}>
+      <Text style={styles.title}>Gestão de Funcionários</Text>
       <Button
         title="Adicionar Entrada/Saída de Trabalhador"
-        onPress={() =>
-          navigation.navigate("EditEmployee", { employee: undefined })
-        }
+        onPress={handleAddEmployee}
       />
       <View style={styles.exitButton}>
         <Button title="Sair" onPress={authCtx.logout} />
@@ -74,19 +89,31 @@ const EmployeeListScreen: React.FC<EmployeeListScreenProps> = ({
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View style={styles.employeeContainer}>
-            <TouchableOpacity
-              onPress={() =>
-                navigation.navigate("EditEmployee", { employee: item })
-              }
-            >
+            <TouchableOpacity onPress={() => handleEditEmployee(item)}>
               <Text style={styles.employeeName}>{item.name}</Text>
+              {item.department && (
+                <Text style={styles.employeeDepartment}>{item.department}</Text>
+              )}
             </TouchableOpacity>
             <Button
               title="Apagar"
               onPress={() => {
                 console.log(`Delete button pressed for id: ${item.id}`);
-                Alert.alert("Test", "This is a test alert");
-                handleDelete(item.id);
+                Alert.alert(
+                  "Confirmar eliminação",
+                  `Tem certeza que deseja eliminar ${item.name}?`,
+                  [
+                    {
+                      text: "Cancelar",
+                      style: "cancel",
+                    },
+                    {
+                      text: "Eliminar",
+                      style: "destructive",
+                      onPress: () => handleDelete(item.id),
+                    },
+                  ]
+                );
               }}
             />
           </View>
@@ -101,20 +128,32 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
   },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 20,
+    textAlign: "center",
+  },
   exitButton: {
     marginTop: 16,
+    marginBottom: 20,
   },
   employeeContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "center",
     padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: "#ccc",
   },
   employeeName: {
     fontSize: 18,
+    fontWeight: "bold",
+  },
+  employeeDepartment: {
+    fontSize: 14,
+    color: "#666",
   },
 });
 
-export default EmployeeListScreen;
->>>>>>> Incoming (Background Agent changes)
+export default EmployeesScreen;

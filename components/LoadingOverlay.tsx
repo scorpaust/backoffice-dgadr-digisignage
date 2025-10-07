@@ -1,6 +1,8 @@
 import React from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 
+import { palette, layout, shadowStyles } from "@/constants/theme";
+
 interface LoadingOverlayProps {
   message: string;
 }
@@ -8,8 +10,10 @@ interface LoadingOverlayProps {
 const LoadingOverlay: React.FC<LoadingOverlayProps> = ({ message }) => {
   return (
     <View style={styles.rootContainer}>
-      <Text style={styles.message}>{message}</Text>
-      <ActivityIndicator size="large" />
+      <View style={styles.panel}>
+        <ActivityIndicator size="large" color={palette.accent} />
+        <Text style={styles.message}>{message}</Text>
+      </View>
     </View>
   );
 };
@@ -21,10 +25,20 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 32,
+    backgroundColor: "rgba(5, 8, 22, 0.8)",
+  },
+  panel: {
+    backgroundColor: palette.surface,
+    borderRadius: layout.radius.lg,
+    paddingVertical: layout.spacing.lg,
+    paddingHorizontal: layout.spacing.xl,
+    alignItems: "center",
+    gap: layout.spacing.sm,
+    ...shadowStyles.medium,
   },
   message: {
+    color: palette.textPrimary,
     fontSize: 16,
-    marginBottom: 12,
+    fontWeight: "600",
   },
 });
