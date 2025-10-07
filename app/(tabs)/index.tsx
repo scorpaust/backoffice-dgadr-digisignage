@@ -1,89 +1,41 @@
-import { createStackNavigator } from "@react-navigation/stack";
-import LoginScreen from "../../components/login";
-import EmployeeListScreen from "../../screens/employees";
-import EmployeeEditScreen from "../../components/employees_edit";
-import { Employee } from "../../constants/Types"; // Ensure you have a types file for shared types
-import React, { useContext, useEffect, useState } from "react";
-import AuthContextProvider from "@/context/AuthContext";
+import React, { useContext } from "react";
+import { View, Text, StyleSheet } from "react-native";
 import { AuthContext } from "../../context/AuthContext";
-import { NavigationContainer } from "@react-navigation/native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import AppLoading from "expo-app-loading";
+import LoginScreen from "../../components/login";
 
-export type RootStackParamList = {
-  Login?: undefined;
-  Employees?: undefined;
-  EditEmployee?: { employee?: Employee };
-};
-
-const Stack = createStackNavigator<RootStackParamList>();
-
-function AuthStack() {
-  return (
-    <Stack.Navigator
-      initialRouteName="Login"
-      screenOptions={{ headerShown: false }}
-    >
-      <Stack.Screen name="Login" component={LoginScreen} />
-    </Stack.Navigator>
-  );
-}
-
-function AuthenticatedStack() {
-  return (
-    <Stack.Navigator
-      initialRouteName="Employees"
-      screenOptions={{ headerShown: false }}
-    >
-      <Stack.Screen name="Employees" component={EmployeeListScreen} />
-
-      <Stack.Screen name="EditEmployee" component={EmployeeEditScreen} />
-    </Stack.Navigator>
-  );
-}
-
-function Navigation() {
+export default function HomeScreen() {
   const authCtx = useContext(AuthContext);
 
-  if (authCtx.isAuthenticated) {
-    return <AuthenticatedStack />;
+  if (!authCtx.isAuthenticated) {
+    return <LoginScreen navigation={{ replace: () => {} }} />;
   }
 
-  return <AuthStack />;
-}
-
-function Root() {
-  const [isTryingLogin, setIsTryingLogin] = useState(false);
-
-  const authCtx = useContext(AuthContext);
-
-  useEffect(() => {
-    async function fetchToken() {
-      const storedToken = await AsyncStorage.getItem("token");
-
-      if (storedToken) {
-        authCtx.authenticate(storedToken);
-      }
-
-      setIsTryingLogin(false);
-    }
-
-    fetchToken();
-  }, []);
-
-  if (isTryingLogin) {
-    return <AppLoading />;
-  }
-
-  return <Navigation />;
-}
-
-function App() {
   return (
-    <AuthContextProvider>
-      <Root />
-    </AuthContextProvider>
+    <View style={styles.container}>
+      <Text style={styles.title}>Bem-vindo ao Backoffice DGADR</Text>
+      <Text style={styles.subtitle}>
+        Sistema de gestão de funcionários e conteúdos
+      </Text>
+    </View>
   );
 }
 
-export default App;
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 10,
+    textAlign: "center",
+  },
+  subtitle: {
+    fontSize: 16,
+    textAlign: "center",
+    color: "#666",
+  },
+});

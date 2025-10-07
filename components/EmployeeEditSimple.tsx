@@ -1,25 +1,22 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, Button, StyleSheet, Alert } from "react-native";
 import { getDatabase, ref, set, push } from "firebase/database";
-import { RouteProp, NavigationProp } from "@react-navigation/native";
-import { RootStackParamList } from "../types/navigation";
+import { Employee } from "../constants/Types";
 
-interface EmployeeEditScreenProps {
-  route: RouteProp<RootStackParamList, "EditEmployee">;
-  navigation: NavigationProp<RootStackParamList, "EditEmployee">;
+interface EmployeeEditSimpleProps {
+  employee?: Employee | null;
+  onClose: () => void;
 }
 
-const EmployeeEditScreen: React.FC<EmployeeEditScreenProps> = ({
-  route,
-  navigation,
+const EmployeeEditSimple: React.FC<EmployeeEditSimpleProps> = ({
+  employee,
+  onClose,
 }) => {
   const [name, setName] = useState("");
   const [startYear, setStartYear] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [department, setDepartment] = useState("");
-
-  const employee = route.params?.employee;
 
   useEffect(() => {
     if (employee) {
@@ -40,24 +37,24 @@ const EmployeeEditScreen: React.FC<EmployeeEditScreenProps> = ({
       // Update existing employee
       set(ref(db, `/employees/${employee.id}`), newEmployee)
         .then(() => {
-          alert("Trabalhador editado com sucesso.");
-          navigation.goBack();
+          Alert.alert("Sucesso", "Trabalhador editado com sucesso.");
+          onClose();
         })
         .catch((error) => {
           console.error(error);
-          Alert.alert("Erro na edição de trabalhador.");
+          Alert.alert("Erro", "Erro na edição de trabalhador.");
         });
     } else {
       // Add new employee
       const newEmployeeRef = push(employeesRef);
       set(newEmployeeRef, newEmployee)
         .then(() => {
-          Alert.alert("Trabalhador adicionado com sucesso.");
-          navigation.goBack();
+          Alert.alert("Sucesso", "Trabalhador adicionado com sucesso.");
+          onClose();
         })
         .catch((error) => {
           console.error(error);
-          Alert.alert("Erro ao adicionar trabalhador.");
+          Alert.alert("Erro", "Erro ao adicionar trabalhador.");
         });
     }
   };
@@ -97,7 +94,10 @@ const EmployeeEditScreen: React.FC<EmployeeEditScreenProps> = ({
         value={department}
         onChangeText={setDepartment}
       />
-      <Button title="Guardar" onPress={handleSave} />
+      <View style={styles.buttonContainer}>
+        <Button title="Guardar" onPress={handleSave} />
+        <Button title="Cancelar" onPress={onClose} color="#ff6b6b" />
+      </View>
     </View>
   );
 };
@@ -111,6 +111,8 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     marginBottom: 16,
+    fontWeight: "bold",
+    textAlign: "center",
   },
   input: {
     height: 40,
@@ -118,7 +120,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 12,
     paddingHorizontal: 8,
+    borderRadius: 4,
+  },
+  buttonContainer: {
+    marginTop: 20,
+    gap: 10,
   },
 });
 
-export default EmployeeEditScreen;
+export default EmployeeEditSimple;
