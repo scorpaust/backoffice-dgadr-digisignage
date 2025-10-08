@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, Button, StyleSheet, Alert } from "react-native";
-import { getDatabase, ref, set, push } from "firebase/database";
+import { ref, set, push } from "firebase/database";
 import { Employee } from "../constants/Types";
+import { db } from "../firebaseConfig";
 
 interface EmployeeEditSimpleProps {
   employee?: Employee | null;
@@ -29,7 +30,6 @@ const EmployeeEditSimple: React.FC<EmployeeEditSimpleProps> = ({
   }, [employee]);
 
   const handleSave = () => {
-    const db = getDatabase();
     const employeesRef = ref(db, "/employees");
     const newEmployee = { name, startYear, startDate, endDate, department };
 

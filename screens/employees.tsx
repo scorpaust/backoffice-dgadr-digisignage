@@ -8,7 +8,7 @@ import {
   StyleSheet,
   Alert,
 } from "react-native";
-import { getDatabase, ref, onValue, off, remove } from "firebase/database";
+import { ref, onValue, off, remove } from "firebase/database";
 import { NavigationProp } from "@react-navigation/native";
 import { Employee } from "../constants/Types"; // Ensure you have a types file for shared types
 import { RootStackParamList } from "../types/navigation";
@@ -27,7 +27,6 @@ const EmployeeListScreen: React.FC<EmployeeListScreenProps> = ({
   const authCtx = useContext(AuthContext);
 
   useEffect(() => {
-    const db = getDatabase();
     const employeesRef = ref(db, `/employees`);
     const listener = onValue(employeesRef, (snapshot) => {
       const data = snapshot.val();

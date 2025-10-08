@@ -8,9 +8,10 @@ import {
   StyleSheet,
   Alert,
 } from "react-native";
-import { getDatabase, ref, onValue, off, remove } from "firebase/database";
+import { ref, onValue, off, remove } from "firebase/database";
 import { Employee } from "../../constants/Types";
 import { AuthContext } from "../../context/AuthContext";
+import { db } from "../../firebaseConfig";
 import EmployeeEditSimple from "../../components/EmployeeEditSimple";
 
 const EmployeesScreen: React.FC = () => {
@@ -21,7 +22,6 @@ const EmployeesScreen: React.FC = () => {
   const authCtx = useContext(AuthContext);
 
   useEffect(() => {
-    const db = getDatabase();
     const employeesRef = ref(db, `/employees`);
     const listener = onValue(employeesRef, (snapshot) => {
       const data = snapshot.val();
@@ -40,7 +40,6 @@ const EmployeesScreen: React.FC = () => {
   const handleDelete = async (id: string) => {
     console.log(`handleDelete called for id: ${id}`);
     try {
-      const db = getDatabase();
       await remove(ref(db, `/employees/${id}`));
       console.log(`Removido trabalhador com id: ${id}`);
       Alert.alert("Trabalhador removido com sucesso.");

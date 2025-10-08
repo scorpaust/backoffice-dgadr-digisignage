@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { getDatabase, ref, onValue, off, remove } from "firebase/database";
+import { ref, onValue, off, remove } from "firebase/database";
 import { Employee } from "../constants/Types";
+import { db } from "../firebaseConfig";
 
 export const useEmployees = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -8,7 +9,6 @@ export const useEmployees = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const db = getDatabase();
     const employeesRef = ref(db, "/employees");
 
     const listener = onValue(
@@ -41,7 +41,6 @@ export const useEmployees = () => {
 
   const deleteEmployee = useCallback(async (id: string): Promise<boolean> => {
     try {
-      const db = getDatabase();
       await remove(ref(db, `/employees/${id}`));
       return true;
     } catch (error) {

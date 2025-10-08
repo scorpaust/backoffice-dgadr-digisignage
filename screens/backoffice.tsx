@@ -30,6 +30,7 @@ import { db } from "../firebaseConfig";
 import { useEmployees } from "../hooks/useEmployees";
 import { useNews } from "../hooks/useNews";
 import { AuthContext } from "../context/AuthContext";
+import niceAlert from "../components/ui/Alert";
 
 type SectionKey = "employees" | "news";
 type FeedbackTone = "success" | "error";
@@ -219,6 +220,13 @@ const BackOfficeScreen: React.FC = () => {
   const [feedback, setFeedback] = useState<FeedbackState | null>(null);
 
   useEffect(() => {
+    if (feedback) {
+      // eslint-disable-next-line no-console
+      console.log("SNACKBAR: state updated", feedback);
+    }
+  }, [feedback]);
+
+  useEffect(() => {
     fadeAnim.current.setValue(0);
     Animated.timing(fadeAnim.current, {
       toValue: 1,
@@ -228,16 +236,9 @@ const BackOfficeScreen: React.FC = () => {
   }, [activeSection]);
 
   const handleFeedback = useCallback((tone: FeedbackTone, message: string) => {
-    if (Platform.OS !== "web") {
-      Alert.alert(
-        tone === "success" ? "Operação concluída" : "Ocorreu um erro",
-        message
-      );
-      // dá um micro-atraso para não concorrer com o modal
-      setTimeout(() => setFeedback({ tone, message }), 50);
-    } else {
-      setFeedback({ tone, message });
-    }
+    // eslint-disable-next-line no-console
+    console.log("onFeedback invoked:", tone, message);
+    setFeedback({ tone, message });
   }, []);
 
   const scrollPadding = compact ? layout.spacing.lg : layout.spacing.xl;
@@ -329,17 +330,10 @@ const BackOfficeScreen: React.FC = () => {
           </View>
         </ScreenScrollContainer>
       )}
-      {feedback && (
-        <View
-          pointerEvents="box-none"
-          style={[StyleSheet.absoluteFillObject, { zIndex: 2147483647 }]}
-        >
-          <FeedbackSnackbar
-            feedback={feedback}
-            onDismiss={() => setFeedback(null)}
-          />
-        </View>
-      )}
+      <FeedbackSnackbar
+        feedback={feedback}
+        onDismiss={() => setFeedback(null)}
+      />
     </SafeAreaView>
   );
 };
@@ -438,7 +432,13 @@ const EmployeeSection: React.FC<{
 
   const handleDelete = (employeeId: string) => {
     console.log("Tentando eliminar trabalhador com ID:", employeeId);
-    Alert.alert(
+
+    if (Platform.OS === "web") {
+      const confirmed = typeof window !== "undefined" ? true : true; // modal próprio tratará
+      if (!confirmed) return;
+    }
+
+    niceAlert(
       "Apagar registo",
       "Tem a certeza que pretende remover este trabalhador?",
       [
@@ -448,17 +448,13 @@ const EmployeeSection: React.FC<{
           style: "destructive",
           onPress: async () => {
             try {
-              console.log("Eliminando trabalhador do Firebase...");
               const employeeRef = ref(db, `/employees/${employeeId}`);
-              console.log("Referência do Firebase:", employeeRef.toString());
               await remove(employeeRef);
-              console.log("Trabalhador eliminado com sucesso!");
               onFeedback("success", "O trabalhador foi removido.");
               if (editingId === employeeId) {
                 resetForm();
               }
             } catch (deletionError) {
-              console.error("Erro ao eliminar trabalhador:", deletionError);
               const errorMessage =
                 deletionError instanceof Error
                   ? deletionError.message
@@ -654,25 +650,22 @@ const NewsSection: React.FC<{
 
   const handleDelete = (newsId: string) => {
     console.log("Tentando eliminar notícia com ID:", newsId);
-    Alert.alert("Apagar notícia", "Confirma remover a notícia do rodapé?", [
+
+    niceAlert("Apagar notícia", "Confirma remover a notícia do rodapé?", [
       { text: "Cancelar", style: "cancel" },
       {
         text: "Apagar",
         style: "destructive",
         onPress: async () => {
           try {
-            console.log("Eliminando notícia do Firebase...");
             const newsRef = ref(db, `/news/${newsId}`);
-            console.log("Referência do Firebase:", newsRef.toString());
             await remove(newsRef);
-            console.log("Notícia eliminada com sucesso!");
             onFeedback("success", "A notícia foi removida.");
             if (editingId === newsId) {
               setTitle("");
               setEditingId(null);
             }
           } catch (deletionError) {
-            console.error("Erro ao eliminar notícia:", deletionError);
             const errorMessage =
               deletionError instanceof Error
                 ? deletionError.message
@@ -859,90 +852,24 @@ const FeedbackSnackbar = memo<FeedbackSnackbarProps>(function FeedbackSnackbar({
   feedback,
   onDismiss,
 }) {
-  const translateY = useRef(new Animated.Value(80)).current;
-  const opacity = useRef(new Animated.Value(0)).current;
-
   useEffect(() => {
     if (!feedback) return;
-
-    if (Platform.OS === "web") {
-      // WEB: sem animação, mas com auto-hide
-      const timer = setTimeout(onDismiss, AUTO_HIDE_MS);
-      return () => clearTimeout(timer);
-    }
-
-    // NATIVO: anima e auto-hide
-    translateY.setValue(80);
-    opacity.setValue(0);
-
-    Animated.parallel([
-      Animated.spring(translateY, { toValue: 0, useNativeDriver: true }),
-      Animated.timing(opacity, {
-        toValue: 1,
-        duration: 180,
-        useNativeDriver: true,
-      }),
-    ]).start();
-
-    const timer = setTimeout(() => {
-      Animated.parallel([
-        Animated.timing(opacity, {
-          toValue: 0,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-        Animated.timing(translateY, {
-          toValue: 80,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-      ]).start(onDismiss);
-    }, AUTO_HIDE_MS);
-
+    // eslint-disable-next-line no-console
+    console.log("SNACKBAR: showing", feedback);
+    const timer = setTimeout(onDismiss, AUTO_HIDE_MS);
     return () => clearTimeout(timer);
-  }, [feedback, onDismiss, opacity, translateY]);
+  }, [feedback, onDismiss]);
 
   if (!feedback) return null;
 
-  // WEB: posição fixa e sem "vermelho" hardcoded
-  if (Platform.OS === "web") {
-    return (
-      <View
-        pointerEvents="none"
-        style={[
-          styles.feedbackContainer,
-          feedback.tone === "success"
-            ? styles.feedbackSuccess
-            : styles.feedbackError,
-          {
-            position: "absolute",
-            left: 16,
-            right: 16,
-            bottom: 16,
-            zIndex: 2147483647,
-          },
-        ]}
-      >
-        <Ionicons
-          name={feedback.tone === "success" ? "checkmark-circle" : "alert"}
-          size={18}
-          color={palette.textPrimary}
-        />
-        <Text style={styles.feedbackText}>{feedback.message}</Text>
-      </View>
-    );
-  }
-
-  // NATIVO
   return (
-    <Animated.View
+    <View
       pointerEvents="none"
       style={[
         styles.feedbackContainer,
         feedback.tone === "success"
           ? styles.feedbackSuccess
           : styles.feedbackError,
-        { opacity, transform: [{ translateY }] },
       ]}
     >
       <Ionicons
@@ -951,7 +878,7 @@ const FeedbackSnackbar = memo<FeedbackSnackbarProps>(function FeedbackSnackbar({
         color={palette.textPrimary}
       />
       <Text style={styles.feedbackText}>{feedback.message}</Text>
-    </Animated.View>
+    </View>
   );
 });
 
@@ -962,7 +889,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: palette.background,
     position: "relative",
-    zIndex: 1,
   },
   surface: {
     backgroundColor: palette.surface,
@@ -972,8 +898,6 @@ const styles = StyleSheet.create({
     width: "100%",
     maxWidth: 1200,
     alignSelf: "center",
-    position: "relative",
-    zIndex: 2,
     ...shadowStyles.medium,
   },
   surfaceCompact: {
@@ -1244,10 +1168,10 @@ const styles = StyleSheet.create({
     color: palette.accentSoft,
   },
   feedbackContainer: {
-    position: "absolute",
-    bottom: layout.spacing.xl,
-    right: layout.spacing.xl,
+    position: "fixed",
     left: layout.spacing.xl,
+    right: layout.spacing.xl,
+    bottom: layout.spacing.xl,
     alignSelf: "center",
     maxWidth: 420,
     backgroundColor: "rgba(31, 41, 55, 0.95)",
@@ -1257,8 +1181,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: layout.spacing.sm,
-    zIndex: 10, // base
-    ...Platform.select({ web: { zIndex: 9999 } }), // web on top
+    zIndex: 2147483647,
     ...shadowStyles.medium,
   },
   feedbackSuccess: {
