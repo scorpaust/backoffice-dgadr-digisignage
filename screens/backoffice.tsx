@@ -31,8 +31,9 @@ import { useEmployees } from "../hooks/useEmployees";
 import { useNews } from "../hooks/useNews";
 import { AuthContext } from "../context/AuthContext";
 import niceAlert from "../components/ui/Alert";
+import ImageManager from "../components/ImageManager";
 
-type SectionKey = "employees" | "news";
+type SectionKey = "employees" | "news" | "images";
 type FeedbackTone = "success" | "error";
 
 interface FeedbackState {
@@ -59,6 +60,12 @@ const sections: SectionDescriptor[] = [
     label: "Notícias de Rodapé",
     icon: "newspaper-outline",
     description: "Atualizar mensagens curtas para o rodapé do ecrã público.",
+  },
+  {
+    key: "images",
+    label: "Gestão de Imagens",
+    icon: "images-outline",
+    description: "Gerir imagens da galeria, destaques, newsletters e eventos.",
   },
 ];
 
@@ -290,8 +297,10 @@ const BackOfficeScreen: React.FC = () => {
                   compact={compact}
                   onFeedback={handleFeedback}
                 />
-              ) : (
+              ) : activeSection === "news" ? (
                 <NewsSection compact={compact} onFeedback={handleFeedback} />
+              ) : (
+                <ImageManager compact={compact} onFeedback={handleFeedback} />
               )}
             </Animated.View>
           </View>
@@ -323,8 +332,10 @@ const BackOfficeScreen: React.FC = () => {
                   compact={compact}
                   onFeedback={handleFeedback}
                 />
-              ) : (
+              ) : activeSection === "news" ? (
                 <NewsSection compact={compact} onFeedback={handleFeedback} />
+              ) : (
+                <ImageManager compact={compact} onFeedback={handleFeedback} />
               )}
             </Animated.View>
           </View>

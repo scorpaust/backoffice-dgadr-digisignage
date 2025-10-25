@@ -15,3 +15,21 @@ export interface Employee extends EntityBase {
 export interface NewsItem extends EntityBase {
   title: string;
 }
+
+export interface ImageItem extends EntityBase {
+  name: string;
+  url: string;
+  path: string;
+  size: number;
+  type: string;
+}
+
+export interface Newsletter extends EntityBase {
+  name: string;
+  displayName: string;
+}
+
+export interface Event extends EntityBase {
+  name: string;
+  date: string;
+}
