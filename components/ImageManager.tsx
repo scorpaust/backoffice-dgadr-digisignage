@@ -11,11 +11,11 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useImages } from "../hooks/useImages";
-import { useNewsletters } from "../hooks/useNewsletters";
 import { palette, layout, shadowStyles } from "../constants/theme";
 import { ImageItem } from "../constants/Types";
 import ImageUploadZone from "./ImageUploadZone";
 import niceAlert from "./ui/Alert";
+import NewsletterManager from "./NewsletterManager";
 
 type TabKey = "gallery" | "highlights" | "newsletters";
 
@@ -26,12 +26,7 @@ interface ImageManagerProps {
 
 const ImageManager: React.FC<ImageManagerProps> = ({ compact, onFeedback }) => {
   const [activeTab, setActiveTab] = useState<TabKey>("gallery");
-  const [selectedNewsletter, setSelectedNewsletter] = useState<string | null>(
-    null
-  );
   const [deletingImageId, setDeletingImageId] = useState<string | null>(null);
-
-  const { newsletters } = useNewsletters();
 
   // Determinar o caminho da pasta baseado na aba ativa
   const getFolderPath = () => {
@@ -40,8 +35,6 @@ const ImageManager: React.FC<ImageManagerProps> = ({ compact, onFeedback }) => {
         return "photos";
       case "highlights":
         return "destaques_biblio";
-      case "newsletters":
-        return selectedNewsletter ? `newsletters/${selectedNewsletter}` : "";
       default:
         return "";
     }
@@ -121,22 +114,8 @@ const ImageManager: React.FC<ImageManagerProps> = ({ compact, onFeedback }) => {
   };
 
   const renderTabContent = () => {
-    if (activeTab === "newsletters" && !selectedNewsletter) {
-      return (
-        <View style={styles.selectionContainer}>
-          <Text style={styles.selectionTitle}>Selecione uma Newsletter</Text>
-          {newsletters.map((newsletter) => (
-            <TouchableOpacity
-              key={newsletter.id}
-              style={styles.selectionItem}
-              onPress={() => setSelectedNewsletter(newsletter.name)}
-            >
-              <Ionicons name="mail-outline" size={20} color={palette.accent} />
-              <Text style={styles.selectionText}>{newsletter.displayName}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      );
+    if (activeTab === "newsletters") {
+      return <NewsletterManager compact={compact} onFeedback={onFeedback} />;
     }
 
     return (
@@ -212,10 +191,7 @@ const ImageManager: React.FC<ImageManagerProps> = ({ compact, onFeedback }) => {
               activeTab === tab.key && styles.tabActive,
               compact && styles.tabCompact,
             ]}
-            onPress={() => {
-              setActiveTab(tab.key);
-              setSelectedNewsletter(null);
-            }}
+            onPress={() => setActiveTab(tab.key)}
           >
             <Ionicons
               name={tab.icon as any}
@@ -237,21 +213,6 @@ const ImageManager: React.FC<ImageManagerProps> = ({ compact, onFeedback }) => {
           </TouchableOpacity>
         ))}
       </View>
-
-      {/* Breadcrumb */}
-      {selectedNewsletter && (
-        <View style={styles.breadcrumb}>
-          <TouchableOpacity
-            onPress={() => {
-              setSelectedNewsletter(null);
-            }}
-          >
-            <Text style={styles.breadcrumbLink}>Newsletters</Text>
-          </TouchableOpacity>
-          <Text style={styles.breadcrumbSeparator}> / </Text>
-          <Text style={styles.breadcrumbCurrent}>{selectedNewsletter}</Text>
-        </View>
-      )}
 
       {/* Content */}
       {renderTabContent()}
@@ -304,64 +265,6 @@ const styles = StyleSheet.create({
   },
   tabTextActive: {
     color: palette.textPrimary,
-  },
-  breadcrumb: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: layout.spacing.sm,
-  },
-  breadcrumbLink: {
-    color: palette.accent,
-    fontSize: 14,
-  },
-  breadcrumbSeparator: {
-    color: palette.textSecondary,
-    fontSize: 14,
-  },
-  breadcrumbCurrent: {
-    color: palette.textPrimary,
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  selectionContainer: {
-    gap: layout.spacing.md,
-  },
-  selectionHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  selectionTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: palette.textPrimary,
-  },
-  addButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: palette.accent,
-    borderRadius: layout.radius.md,
-    paddingVertical: layout.spacing.sm,
-    paddingHorizontal: layout.spacing.md,
-    gap: layout.spacing.xs,
-  },
-  addButtonText: {
-    color: palette.textPrimary,
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  selectionItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: palette.surface,
-    borderRadius: layout.radius.md,
-    padding: layout.spacing.md,
-    gap: layout.spacing.sm,
-  },
-  selectionText: {
-    color: palette.textPrimary,
-    fontSize: 16,
-    fontWeight: "500",
   },
 
   imagesContainer: {

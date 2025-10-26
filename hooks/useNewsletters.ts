@@ -9,12 +9,7 @@ import {
   update,
 } from "firebase/database";
 import { db } from "../firebaseConfig";
-import { Newsletter } from "../constants/Types";
-
-const AVAILABLE_NEWSLETTERS = [
-  { name: "raiz_digital", displayName: "Raiz Digital" },
-  { name: "em_rede", displayName: "Em Rede" },
-];
+import { Newsletter, NewsletterIssue } from "../constants/Types";
 
 export const useNewsletters = () => {
   const [newsletters, setNewsletters] = useState<Newsletter[]>([]);
@@ -33,21 +28,12 @@ export const useNewsletters = () => {
           newslettersList = Object.keys(data).map((key) => ({
             ...data[key],
             id: key,
+            name: key,
+            displayName: data[key].displayName || key,
+            color: data[key].color || "#3F51B5",
+            issues: data[key].issues || {},
           }));
         }
-
-        // Adicionar newsletters padrão se não existirem
-        AVAILABLE_NEWSLETTERS.forEach((defaultNewsletter) => {
-          if (!newslettersList.find((n) => n.name === defaultNewsletter.name)) {
-            newslettersList.push({
-              id: defaultNewsletter.name,
-              name: defaultNewsletter.name,
-              displayName: defaultNewsletter.displayName,
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-            });
-          }
-        });
 
         setNewsletters(newslettersList);
         setError(null);
@@ -66,15 +52,16 @@ export const useNewsletters = () => {
 
   const addNewsletter = async (
     name: string,
-    displayName: string
+    displayName: string,
+    color: string = "#3F51B5"
   ): Promise<boolean> => {
     try {
       const now = new Date().toISOString();
-      const newslettersRef = ref(db, "/newsletters");
-      const newRef = push(newslettersRef);
-      await set(newRef, {
-        name,
+      await set(ref(db, `/newsletters/${name}`), {
+        id: name,
         displayName,
+        color,
+        issues: {},
         createdAt: now,
         updatedAt: now,
       });
@@ -87,11 +74,13 @@ export const useNewsletters = () => {
 
   const updateNewsletter = async (
     id: string,
-    displayName: string
+    displayName: string,
+    color: string
   ): Promise<boolean> => {
     try {
       await update(ref(db, `/newsletters/${id}`), {
         displayName,
+        color,
         updatedAt: new Date().toISOString(),
       });
       return true;
@@ -111,6 +100,57 @@ export const useNewsletters = () => {
     }
   };
 
+  const addIssue = async (
+    newsletterId: string,
+    issue: Omit<NewsletterIssue, "id" | "createdAt" | "updatedAt">
+  ): Promise<boolean> => {
+    try {
+      const now = new Date().toISOString();
+      const issueId = `${newsletterId}-${issue.publishedAt.replace(/-/g, "-")}`;
+
+      await set(ref(db, `/newsletters/${newsletterId}/issues/${issueId}`), {
+        ...issue,
+        id: issueId,
+        createdAt: now,
+        updatedAt: now,
+      });
+      return true;
+    } catch (err) {
+      console.error("Erro ao adicionar issue:", err);
+      return false;
+    }
+  };
+
+  const updateIssue = async (
+    newsletterId: string,
+    issueId: string,
+    issue: Partial<NewsletterIssue>
+  ): Promise<boolean> => {
+    try {
+      await update(ref(db, `/newsletters/${newsletterId}/issues/${issueId}`), {
+        ...issue,
+        updatedAt: new Date().toISOString(),
+      });
+      return true;
+    } catch (err) {
+      console.error("Erro ao atualizar issue:", err);
+      return false;
+    }
+  };
+
+  const deleteIssue = async (
+    newsletterId: string,
+    issueId: string
+  ): Promise<boolean> => {
+    try {
+      await remove(ref(db, `/newsletters/${newsletterId}/issues/${issueId}`));
+      return true;
+    } catch (err) {
+      console.error("Erro ao apagar issue:", err);
+      return false;
+    }
+  };
+
   return {
     newsletters,
     loading,
@@ -118,5 +158,8 @@ export const useNewsletters = () => {
     addNewsletter,
     updateNewsletter,
     deleteNewsletter,
+    addIssue,
+    updateIssue,
+    deleteIssue,
   };
 };

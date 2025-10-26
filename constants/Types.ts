@@ -27,9 +27,14 @@ export interface ImageItem extends EntityBase {
 export interface Newsletter extends EntityBase {
   name: string;
   displayName: string;
+  color: string;
+  issues?: { [key: string]: NewsletterIssue };
 }
 
-export interface Event extends EntityBase {
-  name: string;
-  date: string;
+export interface NewsletterIssue extends EntityBase {
+  title: string;
+  description: string;
+  publishedAt: string;
+  url: string;
+  coverImagePath: string;
 }
