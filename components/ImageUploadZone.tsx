@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import { View, Text, StyleSheet, Platform } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { palette, layout } from "../constants/theme";
@@ -13,38 +13,85 @@ const ImageUploadZone: React.FC<ImageUploadZoneProps> = ({
   disabled,
 }) => {
   const [isDragOver, setIsDragOver] = useState(false);
+  const dropZoneRef = useRef<HTMLDivElement>(null);
 
-  const handleDragOver = useCallback(
-    (e: any) => {
+  const handleDragEnter = useCallback(
+    (e: DragEvent) => {
       if (disabled) return;
       e.preventDefault();
+      e.stopPropagation();
       setIsDragOver(true);
     },
     [disabled]
   );
 
-  const handleDragLeave = useCallback(
-    (e: any) => {
+  const handleDragOver = useCallback(
+    (e: DragEvent) => {
       if (disabled) return;
       e.preventDefault();
-      setIsDragOver(false);
+      e.stopPropagation();
+    },
+    [disabled]
+  );
+
+  const handleDragLeave = useCallback(
+    (e: DragEvent) => {
+      if (disabled) return;
+      e.preventDefault();
+      e.stopPropagation();
+
+      // Só remove o highlight se realmente saiu da zona de drop
+      const rect = dropZoneRef.current?.getBoundingClientRect();
+      if (rect) {
+        const { clientX, clientY } = e;
+        if (
+          clientX < rect.left ||
+          clientX > rect.right ||
+          clientY < rect.top ||
+          clientY > rect.bottom
+        ) {
+          setIsDragOver(false);
+        }
+      }
     },
     [disabled]
   );
 
   const handleDrop = useCallback(
-    (e: any) => {
+    (e: DragEvent) => {
       if (disabled) return;
       e.preventDefault();
+      e.stopPropagation();
       setIsDragOver(false);
 
-      const files = e.dataTransfer.files;
-      if (files.length > 0) {
-        onFileSelect(files[0]);
+      const files = e.dataTransfer?.files;
+      if (files && files.length > 0) {
+        const file = files[0];
+        // Verificar se é uma imagem
+        if (file.type.match(/^image\/(jpeg|jpg|png)$/)) {
+          onFileSelect(file);
+        }
       }
     },
     [disabled, onFileSelect]
   );
+
+  useEffect(() => {
+    const dropZone = dropZoneRef.current;
+    if (!dropZone || Platform.OS !== "web") return;
+
+    dropZone.addEventListener("dragenter", handleDragEnter);
+    dropZone.addEventListener("dragover", handleDragOver);
+    dropZone.addEventListener("dragleave", handleDragLeave);
+    dropZone.addEventListener("drop", handleDrop);
+
+    return () => {
+      dropZone.removeEventListener("dragenter", handleDragEnter);
+      dropZone.removeEventListener("dragover", handleDragOver);
+      dropZone.removeEventListener("dragleave", handleDragLeave);
+      dropZone.removeEventListener("drop", handleDrop);
+    };
+  }, [handleDragEnter, handleDragOver, handleDragLeave, handleDrop]);
 
   const handleClick = useCallback(() => {
     if (disabled) return;
@@ -66,58 +113,70 @@ const ImageUploadZone: React.FC<ImageUploadZoneProps> = ({
   }
 
   return (
-    <View
-      style={[
-        styles.uploadZone,
-        isDragOver && styles.uploadZoneDragOver,
-        disabled && styles.uploadZoneDisabled,
-      ]}
-      onDragOver={handleDragOver}
-      onDragLeave={handleDragLeave}
-      onDrop={handleDrop}
+    <div
+      ref={dropZoneRef}
+      style={{
+        ...styles.uploadZone,
+        ...(isDragOver && styles.uploadZoneDragOver),
+        ...(disabled && styles.uploadZoneDisabled),
+      }}
       onClick={handleClick}
     >
-      <Ionicons
-        name="cloud-upload-outline"
-        size={48}
-        color={disabled ? palette.textSecondary : palette.accent}
-      />
-      <Text style={[styles.uploadText, disabled && styles.uploadTextDisabled]}>
-        {disabled
-          ? "Selecione uma pasta primeiro"
-          : "Arraste uma imagem aqui ou clique para selecionar"}
-      </Text>
-      <Text
-        style={[styles.uploadSubtext, disabled && styles.uploadTextDisabled]}
-      >
-        Formatos suportados: JPG, PNG (máx. 5MB)
-      </Text>
-    </View>
+      <View style={styles.uploadContent}>
+        <Ionicons
+          name="cloud-upload-outline"
+          size={48}
+          color={disabled ? palette.textSecondary : palette.accent}
+        />
+        <Text
+          style={[styles.uploadText, disabled && styles.uploadTextDisabled]}
+        >
+          {disabled
+            ? "Selecione uma pasta primeiro"
+            : isDragOver
+            ? "Solte a imagem aqui"
+            : "Arraste uma imagem aqui ou clique para selecionar"}
+        </Text>
+        <Text
+          style={[styles.uploadSubtext, disabled && styles.uploadTextDisabled]}
+        >
+          Formatos suportados: JPG, PNG (máx. 5MB)
+        </Text>
+      </View>
+    </div>
   );
 };
 
 const styles = StyleSheet.create({
   uploadZone: {
-    borderWidth: 2,
-    borderColor: palette.accent,
-    borderStyle: "dashed",
+    border: `2px dashed ${palette.accent}`,
     borderRadius: layout.radius.lg,
     padding: layout.spacing.xl,
-    alignItems: "center",
-    justifyContent: "center",
-    gap: layout.spacing.md,
     minHeight: 200,
     cursor: "pointer",
     backgroundColor: "rgba(79, 70, 229, 0.05)",
+    transition: "all 0.2s ease-in-out",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
   },
   uploadZoneDragOver: {
     borderColor: palette.accentSoft,
     backgroundColor: "rgba(79, 70, 229, 0.15)",
+    transform: "scale(1.02)",
   },
   uploadZoneDisabled: {
     borderColor: palette.textSecondary,
     backgroundColor: "rgba(148, 163, 184, 0.05)",
     cursor: "not-allowed",
+  },
+  uploadContent: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: layout.spacing.md,
+    pointerEvents: "none", // Evita interferência nos eventos de drag
   },
   uploadText: {
     color: palette.textPrimary,
