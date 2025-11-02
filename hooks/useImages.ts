@@ -6,6 +6,7 @@ import {
   uploadBytes,
   deleteObject,
   getMetadata,
+  updateMetadata,
 } from "firebase/storage";
 import { storage } from "../firebaseConfig";
 import { ImageItem } from "../constants/Types";
@@ -41,6 +42,7 @@ export const useImages = (folderPath: string) => {
           type: metadata.contentType || "image/jpeg",
           createdAt: metadata.timeCreated,
           updatedAt: metadata.updated,
+          link: metadata.customMetadata?.link || undefined,
         } as ImageItem;
       });
 
@@ -62,15 +64,32 @@ export const useImages = (folderPath: string) => {
 
   const uploadImage = async (
     file: File,
-    fileName: string
+    fileName: string,
+    customMetadata?: { [key: string]: string }
   ): Promise<boolean> => {
     try {
       const imageRef = storageRef(storage, `${folderPath}/${fileName}`);
-      await uploadBytes(imageRef, file);
+      const metadata = customMetadata ? { customMetadata } : undefined;
+      await uploadBytes(imageRef, file, metadata);
       await loadImages(); // Recarregar lista
       return true;
     } catch (err) {
       console.error("Erro ao fazer upload:", err);
+      return false;
+    }
+  };
+
+  const updateImageMetadata = async (
+    imagePath: string,
+    customMetadata: { [key: string]: string }
+  ): Promise<boolean> => {
+    try {
+      const imageRef = storageRef(storage, imagePath);
+      await updateMetadata(imageRef, { customMetadata });
+      await loadImages(); // Recarregar lista
+      return true;
+    } catch (err) {
+      console.error("Erro ao atualizar metadata:", err);
       return false;
     }
   };
@@ -97,6 +116,7 @@ export const useImages = (folderPath: string) => {
     error,
     uploadImage,
     deleteImage,
+    updateImageMetadata,
     refreshImages: loadImages,
   };
 };

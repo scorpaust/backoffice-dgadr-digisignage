@@ -1,0 +1,230 @@
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  TextInput,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { palette, layout } from "../constants/theme";
+import { ImageItem } from "../constants/Types";
+
+interface ImageCardProps {
+  image: ImageItem;
+  showLinkField?: boolean;
+  onDelete: (image: ImageItem) => void;
+  onUpdateLink?: (image: ImageItem, link: string) => void;
+  isDeleting?: boolean;
+}
+
+const ImageCard: React.FC<ImageCardProps> = ({
+  image,
+  showLinkField = false,
+  onDelete,
+  onUpdateLink,
+  isDeleting = false,
+}) => {
+  const [linkValue, setLinkValue] = useState(image.link || "");
+  const [isEditingLink, setIsEditingLink] = useState(false);
+
+  const handleSaveLink = () => {
+    if (onUpdateLink) {
+      onUpdateLink(image, linkValue);
+    }
+    setIsEditingLink(false);
+  };
+
+  const handleCancelLink = () => {
+    setLinkValue(image.link || "");
+    setIsEditingLink(false);
+  };
+
+  return (
+    <View style={styles.imageCard}>
+      <Image source={{ uri: image.url }} style={styles.imagePreview} />
+
+      <View style={styles.imageInfo}>
+        <Text style={styles.imageName} numberOfLines={1}>
+          {image.name}
+        </Text>
+        <Text style={styles.imageSize}>
+          {(image.size / 1024).toFixed(1)} KB
+        </Text>
+      </View>
+
+      {showLinkField && (
+        <View style={styles.linkSection}>
+          <Text style={styles.linkLabel}>Link:</Text>
+          {isEditingLink ? (
+            <View style={styles.linkEditContainer}>
+              <TextInput
+                style={styles.linkInput}
+                value={linkValue}
+                onChangeText={setLinkValue}
+                placeholder="https://exemplo.com"
+                placeholderTextColor={palette.textSecondary}
+                autoFocus
+              />
+              <View style={styles.linkButtons}>
+                <TouchableOpacity
+                  style={[styles.linkButton, styles.linkButtonSave]}
+                  onPress={handleSaveLink}
+                >
+                  <Ionicons
+                    name="checkmark"
+                    size={14}
+                    color={palette.textPrimary}
+                  />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.linkButton, styles.linkButtonCancel]}
+                  onPress={handleCancelLink}
+                >
+                  <Ionicons
+                    name="close"
+                    size={14}
+                    color={palette.textPrimary}
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+          ) : (
+            <TouchableOpacity
+              style={styles.linkDisplay}
+              onPress={() => setIsEditingLink(true)}
+            >
+              <Text style={styles.linkText} numberOfLines={1}>
+                {image.link || "Clique para adicionar link"}
+              </Text>
+              <Ionicons name="pencil" size={14} color={palette.textSecondary} />
+            </TouchableOpacity>
+          )}
+        </View>
+      )}
+
+      <TouchableOpacity
+        style={[styles.deleteButton, isDeleting && styles.deleteButtonLoading]}
+        onPress={() => onDelete(image)}
+        activeOpacity={0.7}
+        disabled={isDeleting}
+      >
+        <Ionicons
+          name={isDeleting ? "hourglass-outline" : "trash-outline"}
+          size={16}
+          color={palette.danger}
+        />
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  imageCard: {
+    width: 200,
+    backgroundColor: palette.surface,
+    borderRadius: layout.radius.md,
+    padding: layout.spacing.sm,
+    position: "relative",
+  },
+  imagePreview: {
+    width: "100%",
+    height: 120,
+    borderRadius: layout.radius.sm,
+    backgroundColor: palette.surfaceElevated,
+  },
+  imageInfo: {
+    marginTop: layout.spacing.sm,
+  },
+  imageName: {
+    color: palette.textPrimary,
+    fontSize: 12,
+    fontWeight: "500",
+  },
+  imageSize: {
+    color: palette.textSecondary,
+    fontSize: 11,
+    marginTop: 2,
+  },
+  linkSection: {
+    marginTop: layout.spacing.sm,
+    gap: layout.spacing.xs,
+  },
+  linkLabel: {
+    color: palette.textPrimary,
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  linkDisplay: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: palette.surfaceElevated,
+    borderRadius: layout.radius.sm,
+    paddingHorizontal: layout.spacing.sm,
+    paddingVertical: layout.spacing.xs,
+    borderWidth: 1,
+    borderColor: "rgba(99, 102, 241, 0.25)",
+  },
+  linkText: {
+    color: palette.textSecondary,
+    fontSize: 11,
+    flex: 1,
+    marginRight: layout.spacing.xs,
+  },
+  linkEditContainer: {
+    gap: layout.spacing.xs,
+  },
+  linkInput: {
+    backgroundColor: palette.surfaceElevated,
+    borderWidth: 1,
+    borderColor: palette.accent,
+    borderRadius: layout.radius.sm,
+    color: palette.textPrimary,
+    paddingHorizontal: layout.spacing.sm,
+    paddingVertical: layout.spacing.xs,
+    fontSize: 11,
+  },
+  linkButtons: {
+    flexDirection: "row",
+    gap: layout.spacing.xs,
+  },
+  linkButton: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: layout.spacing.xs,
+    borderRadius: layout.radius.sm,
+  },
+  linkButtonSave: {
+    backgroundColor: "rgba(34, 197, 94, 0.2)",
+    borderWidth: 1,
+    borderColor: "rgba(34, 197, 94, 0.5)",
+  },
+  linkButtonCancel: {
+    backgroundColor: "rgba(239, 68, 68, 0.2)",
+    borderWidth: 1,
+    borderColor: "rgba(239, 68, 68, 0.5)",
+  },
+  deleteButton: {
+    position: "absolute",
+    top: layout.spacing.sm,
+    right: layout.spacing.sm,
+    backgroundColor: "rgba(0, 0, 0, 0.8)",
+    borderRadius: 12,
+    width: 28,
+    height: 28,
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 10,
+    borderWidth: 1,
+    borderColor: "rgba(239, 68, 68, 0.5)",
+  },
+  deleteButtonLoading: {
+    opacity: 0.6,
+    backgroundColor: "rgba(0, 0, 0, 0.9)",
+  },
+});
+
+export default ImageCard;

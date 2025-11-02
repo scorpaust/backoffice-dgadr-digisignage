@@ -4,16 +4,14 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  Image,
   ScrollView,
-  TextInput,
-  Modal,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useImages } from "../hooks/useImages";
 import { palette, layout, shadowStyles } from "../constants/theme";
 import { ImageItem } from "../constants/Types";
 import ImageUploadZone from "./ImageUploadZone";
+import ImageCard from "./ImageCard";
 import niceAlert from "./ui/Alert";
 import NewsletterManager from "./NewsletterManager";
 
@@ -41,7 +39,8 @@ const ImageManager: React.FC<ImageManagerProps> = ({ compact, onFeedback }) => {
   };
 
   const folderPath = getFolderPath();
-  const { images, loading, uploadImage, deleteImage } = useImages(folderPath);
+  const { images, loading, uploadImage, deleteImage, updateImageMetadata } =
+    useImages(folderPath);
 
   const tabs = [
     { key: "gallery" as TabKey, label: "Galeria", icon: "images-outline" },
@@ -113,6 +112,19 @@ const ImageManager: React.FC<ImageManagerProps> = ({ compact, onFeedback }) => {
     );
   };
 
+  const handleUpdateImageLink = async (image: ImageItem, link: string) => {
+    try {
+      const success = await updateImageMetadata(image.path, { link });
+      if (success) {
+        onFeedback("success", "Link atualizado com sucesso.");
+      } else {
+        onFeedback("error", "Erro ao atualizar link.");
+      }
+    } catch (error) {
+      onFeedback("error", "Erro ao atualizar link.");
+    }
+  };
+
   const renderTabContent = () => {
     if (activeTab === "newsletters") {
       return <NewsletterManager compact={compact} onFeedback={onFeedback} />;
@@ -137,39 +149,14 @@ const ImageManager: React.FC<ImageManagerProps> = ({ compact, onFeedback }) => {
         >
           <View style={styles.imagesGrid}>
             {images.map((image) => (
-              <View key={image.id} style={styles.imageCard}>
-                <Image
-                  source={{ uri: image.url }}
-                  style={styles.imagePreview}
-                />
-                <View style={styles.imageInfo}>
-                  <Text style={styles.imageName} numberOfLines={1}>
-                    {image.name}
-                  </Text>
-                  <Text style={styles.imageSize}>
-                    {(image.size / 1024).toFixed(1)} KB
-                  </Text>
-                </View>
-                <TouchableOpacity
-                  style={[
-                    styles.deleteButton,
-                    deletingImageId === image.id && styles.deleteButtonLoading,
-                  ]}
-                  onPress={() => handleDeleteImage(image)}
-                  activeOpacity={0.7}
-                  disabled={deletingImageId === image.id}
-                >
-                  <Ionicons
-                    name={
-                      deletingImageId === image.id
-                        ? "hourglass-outline"
-                        : "trash-outline"
-                    }
-                    size={16}
-                    color={palette.danger}
-                  />
-                </TouchableOpacity>
-              </View>
+              <ImageCard
+                key={image.id}
+                image={image}
+                showLinkField={activeTab === "highlights"}
+                onDelete={handleDeleteImage}
+                onUpdateLink={handleUpdateImageLink}
+                isDeleting={deletingImageId === image.id}
+              />
             ))}
           </View>
         </ScrollView>
@@ -305,50 +292,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     gap: layout.spacing.md,
-  },
-  imageCard: {
-    width: 150,
-    backgroundColor: palette.surface,
-    borderRadius: layout.radius.md,
-    padding: layout.spacing.sm,
-    position: "relative",
-  },
-  imagePreview: {
-    width: "100%",
-    height: 100,
-    borderRadius: layout.radius.sm,
-    backgroundColor: palette.surfaceElevated,
-  },
-  imageInfo: {
-    marginTop: layout.spacing.sm,
-  },
-  imageName: {
-    color: palette.textPrimary,
-    fontSize: 12,
-    fontWeight: "500",
-  },
-  imageSize: {
-    color: palette.textSecondary,
-    fontSize: 11,
-    marginTop: 2,
-  },
-  deleteButton: {
-    position: "absolute",
-    top: layout.spacing.sm,
-    right: layout.spacing.sm,
-    backgroundColor: "rgba(0, 0, 0, 0.8)",
-    borderRadius: 12,
-    width: 28,
-    height: 28,
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: 10,
-    borderWidth: 1,
-    borderColor: "rgba(239, 68, 68, 0.5)",
-  },
-  deleteButtonLoading: {
-    opacity: 0.6,
-    backgroundColor: "rgba(0, 0, 0, 0.9)",
   },
   modalOverlay: {
     flex: 1,

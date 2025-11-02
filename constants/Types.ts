@@ -22,6 +22,7 @@ export interface ImageItem extends EntityBase {
   path: string;
   size: number;
   type: string;
+  link?: string; // Link personalizado para destaques da biblioteca
 }
 
 export interface Newsletter extends EntityBase {

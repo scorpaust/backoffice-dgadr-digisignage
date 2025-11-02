@@ -149,7 +149,9 @@ const ImageUploadZone: React.FC<ImageUploadZoneProps> = ({
 
 const styles = StyleSheet.create({
   uploadZone: {
-    border: `2px dashed ${palette.accent}`,
+    borderWidth: 2,
+    borderStyle: "dashed",
+    borderColor: palette.accent,
     borderRadius: layout.radius.lg,
     padding: layout.spacing.xl,
     minHeight: 200,
