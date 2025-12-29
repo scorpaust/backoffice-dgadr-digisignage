@@ -30,7 +30,7 @@
 .raiz-newsletter__gallery {
     position: relative;
     margin-bottom: 40px;
-    overflow: hidden;
+    padding: 0 60px;
 }
 
 .raiz-newsletter__gallery-wrapper {
@@ -41,7 +41,9 @@
 }
 
 .raiz-newsletter__nav-btn {
-    flex-shrink: 0;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
     width: 50px;
     height: 50px;
     border: none;
@@ -58,9 +60,17 @@
     z-index: 10;
 }
 
+#raizNewsletterPrevBtn {
+    left: 0;
+}
+
+#raizNewsletterNextBtn {
+    right: 0;
+}
+
 .raiz-newsletter__nav-btn:hover:not(:disabled) {
     background: #303F9F;
-    transform: scale(1.1);
+    transform: translateY(-50%) scale(1.1);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
@@ -77,7 +87,6 @@
 
 /* Covers Track */
 .raiz-newsletter__covers-track {
-    flex: 1;
     overflow: hidden;
     position: relative;
 }
@@ -113,11 +122,12 @@
 .raiz-newsletter__cover-img {
     width: 100%;
     height: auto;
-    max-height: 600px;
-    min-height: 400px;
+    max-height: 800px;
     object-fit: contain;
     display: block;
     background: #f5f5f5;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
 }
 
 .raiz-newsletter__cover-overlay {
@@ -125,12 +135,13 @@
     bottom: 0;
     left: 0;
     right: 0;
-    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    background: linear-gradient(to top, rgba(63, 81, 181, 0.95), transparent);
     padding: 20px 15px 10px;
     color: white;
     opacity: 0;
     transition: opacity 0.3s ease;
     pointer-events: none;
+    backdrop-filter: blur(2px);
 }
 
 .raiz-newsletter__cover:hover .raiz-newsletter__cover-overlay {
@@ -138,10 +149,11 @@
 }
 
 .raiz-newsletter__cover-title {
-    font-size: 14px;
-    font-weight: 600;
+    font-size: 16px;
+    font-weight: 700;
     margin: 0;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+    letter-spacing: 0.3px;
 }
 
 /* Details Section */
@@ -286,13 +298,16 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
+    .raiz-newsletter__gallery {
+        padding: 0 50px;
+    }
+
     .raiz-newsletter__cover {
         flex: 0 0 calc(50% - 10px);
     }
 
     .raiz-newsletter__cover-img {
-        max-height: 500px;
-        min-height: 300px;
+        max-height: 600px;
     }
 
     .raiz-newsletter__nav-btn {
@@ -327,13 +342,16 @@
         padding: 10px;
     }
 
+    .raiz-newsletter__gallery {
+        padding: 0 45px;
+    }
+
     .raiz-newsletter__cover {
         flex: 0 0 100%;
     }
 
     .raiz-newsletter__cover-img {
-        max-height: 450px;
-        min-height: 250px;
+        max-height: 500px;
     }
 
     .raiz-newsletter__nav-btn {
