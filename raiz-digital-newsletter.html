@@ -596,8 +596,14 @@
             function getStorageUrl(path) {
                 if (!path) return '';
 
-                const encodedPath = path.split('/').map(encodeURIComponent).join('%2F');
-                return `https://firebasestorage.googleapis.com/v0/b/${CONFIG.storageBucket}/o/${encodedPath}?alt=media`;
+                // Encode each part of the path separately, then join with %2F
+                const encodedPath = path.split('/').map(part => encodeURIComponent(part)).join('%2F');
+                const url = `https://firebasestorage.googleapis.com/v0/b/${CONFIG.storageBucket}/o/${encodedPath}?alt=media`;
+
+                // Debug log (remove after testing)
+                console.log('Firebase Storage URL:', url);
+
+                return url;
             }
 
             /**
@@ -634,10 +640,11 @@
                         aria-label="Newsletter: ${escapeHtml(issue.title)}, publicada em ${formatDate(issue.publishedAt)}"
                     >
                         <img
-                            src="${escapeHtml(issue.coverUrl)}"
+                            src="${issue.coverUrl}"
                             alt="Capa da edição: ${escapeHtml(issue.title)}"
                             class="raiz-newsletter__cover-img"
                             loading="lazy"
+                            onerror="this.style.display='none'"
                         />
                         <div class="raiz-newsletter__cover-overlay" aria-hidden="true">
                             <h3 class="raiz-newsletter__cover-title">${escapeHtml(issue.title)}</h3>
