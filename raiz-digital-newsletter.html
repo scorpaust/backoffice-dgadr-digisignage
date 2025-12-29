@@ -592,16 +592,19 @@
 
             /**
              * Convert Firebase Storage path to public URL
+             * Uses the same approach as the React app: single encodeURIComponent on full path
              */
             function getStorageUrl(path) {
                 if (!path) return '';
 
-                // Encode each part of the path separately, then join with %2F
-                const encodedPath = path.split('/').map(part => encodeURIComponent(part)).join('%2F');
+                // Encode the full path at once (same as React code)
+                const encodedPath = encodeURIComponent(path);
                 const url = `https://firebasestorage.googleapis.com/v0/b/${CONFIG.storageBucket}/o/${encodedPath}?alt=media`;
 
-                // Debug log (remove after testing)
-                console.log('Firebase Storage URL:', url);
+                // Debug log
+                console.log('Original path:', path);
+                console.log('Encoded path:', encodedPath);
+                console.log('Full URL:', url);
 
                 return url;
             }
@@ -640,17 +643,30 @@
                         aria-label="Newsletter: ${escapeHtml(issue.title)}, publicada em ${formatDate(issue.publishedAt)}"
                     >
                         <img
-                            src="${issue.coverUrl}"
+                            data-cover-url="${issue.coverUrl}"
                             alt="Capa da edição: ${escapeHtml(issue.title)}"
                             class="raiz-newsletter__cover-img"
                             loading="lazy"
-                            onerror="this.style.display='none'"
                         />
                         <div class="raiz-newsletter__cover-overlay" aria-hidden="true">
                             <h3 class="raiz-newsletter__cover-title">${escapeHtml(issue.title)}</h3>
                         </div>
                     </div>
                 `).join('');
+
+                // Set image sources programmatically to avoid Joomla URL processing
+                setTimeout(() => {
+                    document.querySelectorAll('.raiz-newsletter__cover-img').forEach(img => {
+                        const url = img.getAttribute('data-cover-url');
+                        if (url) {
+                            img.src = url;
+                            img.onerror = function() {
+                                console.error('Failed to load image:', url);
+                                this.style.display = 'none';
+                            };
+                        }
+                    });
+                }, 0);
             }
 
             /**
