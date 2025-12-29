@@ -120,8 +120,9 @@
         .raiz-newsletter__cover-img {
             width: 100%;
             height: auto;
-            aspect-ratio: 3 / 4;
-            object-fit: cover;
+            max-height: 600px;
+            min-height: 400px;
+            object-fit: contain;
             display: block;
             background: #f5f5f5;
         }
@@ -295,6 +296,11 @@
                 flex: 0 0 calc(50% - 10px);
             }
 
+            .raiz-newsletter__cover-img {
+                max-height: 500px;
+                min-height: 300px;
+            }
+
             .raiz-newsletter__nav-btn {
                 width: 40px;
                 height: 40px;
@@ -329,6 +335,11 @@
 
             .raiz-newsletter__cover {
                 flex: 0 0 100%;
+            }
+
+            .raiz-newsletter__cover-img {
+                max-height: 450px;
+                min-height: 250px;
             }
 
             .raiz-newsletter__nav-btn {
