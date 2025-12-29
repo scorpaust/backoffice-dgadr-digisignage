@@ -1,0 +1,930 @@
+<style>
+/* Reset e Base */
+.raiz-newsletter-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    color: #333;
+}
+
+.raiz-newsletter-container * {
+    box-sizing: border-box;
+}
+
+/* Logo Section */
+.raiz-newsletter__logo {
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 20px 0;
+}
+
+.raiz-newsletter__logo-img {
+    max-width: 300px;
+    width: 100%;
+    height: auto;
+    display: inline-block;
+}
+
+/* Gallery Container */
+.raiz-newsletter__gallery {
+    position: relative;
+    margin-bottom: 40px;
+    overflow: hidden;
+}
+
+.raiz-newsletter__gallery-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 20px 0;
+}
+
+.raiz-newsletter__nav-btn {
+    flex-shrink: 0;
+    width: 50px;
+    height: 50px;
+    border: none;
+    border-radius: 50%;
+    background: #3F51B5;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    z-index: 10;
+}
+
+.raiz-newsletter__nav-btn:hover:not(:disabled) {
+    background: #303F9F;
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.raiz-newsletter__nav-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.raiz-newsletter__nav-btn:focus {
+    outline: 3px solid #FFD54F;
+    outline-offset: 2px;
+}
+
+/* Covers Track */
+.raiz-newsletter__covers-track {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+}
+
+.raiz-newsletter__covers {
+    display: flex;
+    gap: 20px;
+    transition: transform 0.5s cubic-bezier(0.4, 0.0, 0.2, 1);
+    will-change: transform;
+}
+
+/* Cover Item */
+.raiz-newsletter__cover {
+    flex: 0 0 calc(33.333% - 14px);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+
+.raiz-newsletter__cover:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.raiz-newsletter__cover:focus {
+    outline: 3px solid #3F51B5;
+    outline-offset: 4px;
+}
+
+.raiz-newsletter__cover-img {
+    width: 100%;
+    height: auto;
+    max-height: 600px;
+    min-height: 400px;
+    object-fit: contain;
+    display: block;
+    background: #f5f5f5;
+}
+
+.raiz-newsletter__cover-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    padding: 20px 15px 10px;
+    color: white;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.raiz-newsletter__cover:hover .raiz-newsletter__cover-overlay {
+    opacity: 1;
+}
+
+.raiz-newsletter__cover-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+}
+
+/* Details Section */
+.raiz-newsletter__details {
+    background: #f9f9f9;
+    border-left: 4px solid #3F51B5;
+    padding: 30px;
+    margin: 30px 0;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    display: none;
+    animation: slideDown 0.4s ease;
+}
+
+.raiz-newsletter__details--visible {
+    display: block;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.raiz-newsletter__details-title {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0 0 15px 0;
+    color: #3F51B5;
+}
+
+.raiz-newsletter__details-date {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 20px;
+    display: block;
+    font-weight: 500;
+}
+
+.raiz-newsletter__details-description {
+    font-size: 16px;
+    line-height: 1.7;
+    color: #444;
+    margin: 0;
+}
+
+.raiz-newsletter__details-link {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 12px 24px;
+    background: #3F51B5;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: 600;
+    transition: background 0.3s ease;
+}
+
+.raiz-newsletter__details-link:hover {
+    background: #303F9F;
+}
+
+.raiz-newsletter__details-link:focus {
+    outline: 3px solid #FFD54F;
+    outline-offset: 2px;
+}
+
+/* Footer */
+.raiz-newsletter__footer {
+    background: #3F51B5;
+    color: white;
+    text-align: center;
+    padding: 30px 20px;
+    border-radius: 8px;
+    margin-top: 50px;
+}
+
+.raiz-newsletter__footer-link {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+    font-weight: 600;
+    border-bottom: 2px solid transparent;
+    transition: border-color 0.3s ease;
+    display: inline-block;
+    padding-bottom: 5px;
+}
+
+.raiz-newsletter__footer-link:hover {
+    border-bottom-color: white;
+}
+
+.raiz-newsletter__footer-link:focus {
+    outline: 3px solid #FFD54F;
+    outline-offset: 4px;
+}
+
+/* Loading State */
+.raiz-newsletter__loading {
+    text-align: center;
+    padding: 60px 20px;
+    font-size: 18px;
+    color: #666;
+}
+
+.raiz-newsletter__spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3F51B5;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Error State */
+.raiz-newsletter__error {
+    background: #ffebee;
+    color: #c62828;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    margin: 20px 0;
+}
+
+/* Empty State */
+.raiz-newsletter__empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: #666;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .raiz-newsletter__cover {
+        flex: 0 0 calc(50% - 10px);
+    }
+
+    .raiz-newsletter__cover-img {
+        max-height: 500px;
+        min-height: 300px;
+    }
+
+    .raiz-newsletter__nav-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+    }
+
+    .raiz-newsletter__gallery-wrapper {
+        gap: 15px;
+    }
+
+    .raiz-newsletter__covers {
+        gap: 15px;
+    }
+
+    .raiz-newsletter__details {
+        padding: 20px;
+    }
+
+    .raiz-newsletter__details-title {
+        font-size: 22px;
+    }
+
+    .raiz-newsletter__footer {
+        padding: 20px 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .raiz-newsletter-container {
+        padding: 10px;
+    }
+
+    .raiz-newsletter__cover {
+        flex: 0 0 100%;
+    }
+
+    .raiz-newsletter__cover-img {
+        max-height: 450px;
+        min-height: 250px;
+    }
+
+    .raiz-newsletter__nav-btn {
+        width: 35px;
+        height: 35px;
+        font-size: 18px;
+    }
+
+    .raiz-newsletter__details {
+        padding: 15px;
+    }
+
+    .raiz-newsletter__details-title {
+        font-size: 20px;
+    }
+
+    .raiz-newsletter__logo {
+        margin-bottom: 20px;
+    }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+    .raiz-newsletter__cover {
+        border: 2px solid currentColor;
+    }
+
+    .raiz-newsletter__nav-btn {
+        border: 2px solid white;
+    }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+    .raiz-newsletter__covers,
+    .raiz-newsletter__cover,
+    .raiz-newsletter__nav-btn,
+    .raiz-newsletter__details {
+        transition: none;
+        animation: none;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .raiz-newsletter__nav-btn {
+        display: none;
+    }
+
+    .raiz-newsletter__covers {
+        flex-wrap: wrap;
+    }
+
+    .raiz-newsletter__cover {
+        page-break-inside: avoid;
+    }
+}
+</style>
+
+<div class="raiz-newsletter-container">
+    <!-- Logo Section -->
+    <header class="raiz-newsletter__logo">
+        <img
+            src="https://raiz-digital.pt/wp-content/uploads/2024/01/logo-raiz-digital.png"
+            alt="Raiz Digital Logo"
+            class="raiz-newsletter__logo-img"
+            loading="eager"
+        />
+    </header>
+
+    <!-- Loading State -->
+    <div id="raizNewsletterLoading" class="raiz-newsletter__loading" role="status" aria-live="polite">
+        <div class="raiz-newsletter__spinner" aria-hidden="true"></div>
+        <p>A carregar newsletters...</p>
+    </div>
+
+    <!-- Error State -->
+    <div id="raizNewsletterError" class="raiz-newsletter__error" role="alert" style="display: none;">
+        <p><strong>Erro:</strong> Não foi possível carregar as newsletters. Por favor, tente novamente mais tarde.</p>
+    </div>
+
+    <!-- Gallery Section -->
+    <section
+        id="raizNewsletterGallery"
+        class="raiz-newsletter__gallery"
+        style="display: none;"
+        aria-label="Galeria de newsletters Raiz Digital"
+    >
+        <div class="raiz-newsletter__gallery-wrapper">
+            <!-- Previous Button -->
+            <button
+                id="raizNewsletterPrevBtn"
+                class="raiz-newsletter__nav-btn"
+                aria-label="Ver newsletters anteriores"
+                disabled
+            >
+                ‹
+            </button>
+
+            <!-- Covers Track -->
+            <div class="raiz-newsletter__covers-track">
+                <div id="raizNewsletterCovers" class="raiz-newsletter__covers" role="list">
+                    <!-- Covers will be inserted here by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Next Button -->
+            <button
+                id="raizNewsletterNextBtn"
+                class="raiz-newsletter__nav-btn"
+                aria-label="Ver próximas newsletters"
+            >
+                ›
+            </button>
+        </div>
+    </section>
+
+    <!-- Details Section -->
+    <article
+        id="raizNewsletterDetails"
+        class="raiz-newsletter__details"
+        role="region"
+        aria-live="polite"
+        aria-label="Detalhes da newsletter selecionada"
+    >
+        <!-- Details will be inserted here by JavaScript -->
+    </article>
+
+    <!-- Empty State -->
+    <div id="raizNewsletterEmpty" class="raiz-newsletter__empty" style="display: none;">
+        <p>Não existem newsletters publicadas de momento.</p>
+    </div>
+
+    <!-- Footer -->
+    <footer class="raiz-newsletter__footer">
+        <a
+            href="https://raiz-digital.pt/"
+            class="raiz-newsletter__footer-link"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Visitar o site Raiz Digital (abre numa nova janela)"
+        >
+            Mais informações →
+        </a>
+    </footer>
+</div>
+
+<script>
+(function() {
+    'use strict';
+
+    // Configuration
+    const CONFIG = {
+        firebaseUrl: 'https://dgadr-digisignage-app-default-rtdb.europe-west1.firebasedatabase.app',
+        newsletterName: 'raiz-digital',
+        storageBucket: 'dgadr-digisignage-app.appspot.com',
+        visibleCovers: 3,
+        cacheTime: 3600000 // 1 hour in milliseconds
+    };
+
+    // State
+    let issues = [];
+    let currentIndex = 0;
+    let selectedIssue = null;
+
+    // DOM Elements
+    const elements = {
+        loading: document.getElementById('raizNewsletterLoading'),
+        error: document.getElementById('raizNewsletterError'),
+        gallery: document.getElementById('raizNewsletterGallery'),
+        empty: document.getElementById('raizNewsletterEmpty'),
+        covers: document.getElementById('raizNewsletterCovers'),
+        details: document.getElementById('raizNewsletterDetails'),
+        prevBtn: document.getElementById('raizNewsletterPrevBtn'),
+        nextBtn: document.getElementById('raizNewsletterNextBtn')
+    };
+
+    /**
+     * Initialize the newsletter gallery
+     */
+    async function init() {
+        try {
+            showLoading();
+            issues = await fetchIssues();
+
+            if (issues.length === 0) {
+                showEmpty();
+                return;
+            }
+
+            renderGallery();
+            setupEventListeners();
+            updateNavigation();
+            showGallery();
+
+        } catch (error) {
+            console.error('Error initializing newsletter:', error);
+            showError();
+        }
+    }
+
+    /**
+     * Fetch newsletter issues from Firebase
+     */
+    async function fetchIssues() {
+        // Check cache first
+        const cached = getFromCache();
+        if (cached) {
+            console.log('Using cached data');
+            return cached;
+        }
+
+        const endpoint = `${CONFIG.firebaseUrl}/newsletters/${CONFIG.newsletterName}/issues.json`;
+
+        try {
+            const response = await fetch(endpoint);
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+
+            if (!data || typeof data !== 'object') {
+                return [];
+            }
+
+            const processedIssues = processIssues(data);
+
+            // Save to cache
+            saveToCache(processedIssues);
+
+            return processedIssues;
+
+        } catch (error) {
+            console.error('Error fetching issues:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Process raw Firebase data into sorted issues array
+     */
+    function processIssues(data) {
+        const issuesArray = Object.entries(data).map(([id, issue]) => ({
+            id: id,
+            title: issue.title || '',
+            description: issue.description || '',
+            publishedAt: issue.publishedAt || '',
+            url: issue.url || '',
+            coverUrl: getStorageUrl(issue.coverImagePath || ''),
+            timestamp: new Date(issue.publishedAt || '').getTime()
+        }));
+
+        // Sort by publication date (newest first)
+        issuesArray.sort((a, b) => b.timestamp - a.timestamp);
+
+        return issuesArray;
+    }
+
+    /**
+     * Convert Firebase Storage path to public URL
+     * Uses the same approach as the React app: single encodeURIComponent on full path
+     */
+    function getStorageUrl(path) {
+        if (!path) return '';
+
+        // Encode the full path at once (same as React code)
+        const encodedPath = encodeURIComponent(path);
+        const url = `https://firebasestorage.googleapis.com/v0/b/${CONFIG.storageBucket}/o/${encodedPath}?alt=media`;
+
+        return url;
+    }
+
+    /**
+     * Format date in Portuguese
+     */
+    function formatDate(dateStr) {
+        if (!dateStr) return '';
+
+        const date = new Date(dateStr);
+        if (isNaN(date.getTime())) return dateStr;
+
+        const months = [
+            'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+            'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+        ];
+
+        const day = date.getDate();
+        const month = months[date.getMonth()];
+        const year = date.getFullYear();
+
+        return `${day} de ${month} de ${year}`;
+    }
+
+    /**
+     * Render the gallery of covers
+     */
+    function renderGallery() {
+        elements.covers.innerHTML = issues.map((issue, index) => `
+            <div
+                class="raiz-newsletter__cover"
+                role="listitem"
+                tabindex="0"
+                data-index="${index}"
+                aria-label="Newsletter: ${escapeHtml(issue.title)}, publicada em ${formatDate(issue.publishedAt)}"
+            >
+                <img
+                    data-cover-url="${issue.coverUrl}"
+                    alt="Capa da edição: ${escapeHtml(issue.title)}"
+                    class="raiz-newsletter__cover-img"
+                    loading="lazy"
+                />
+                <div class="raiz-newsletter__cover-overlay" aria-hidden="true">
+                    <h3 class="raiz-newsletter__cover-title">${escapeHtml(issue.title)}</h3>
+                </div>
+            </div>
+        `).join('');
+
+        // Set image sources programmatically to avoid Joomla URL processing
+        setTimeout(() => {
+            document.querySelectorAll('.raiz-newsletter__cover-img').forEach(img => {
+                const url = img.getAttribute('data-cover-url');
+                if (url) {
+                    img.src = url;
+                    img.onerror = function() {
+                        console.error('Failed to load image:', url);
+                        this.style.display = 'none';
+                    };
+                }
+            });
+        }, 0);
+    }
+
+    /**
+     * Setup event listeners
+     */
+    function setupEventListeners() {
+        // Navigation buttons
+        elements.prevBtn.addEventListener('click', navigatePrevious);
+        elements.nextBtn.addEventListener('click', navigateNext);
+
+        // Cover clicks
+        elements.covers.addEventListener('click', handleCoverClick);
+
+        // Keyboard navigation
+        elements.covers.addEventListener('keydown', handleCoverKeydown);
+
+        // Keyboard navigation for nav buttons
+        document.addEventListener('keydown', handleGlobalKeydown);
+
+        // Responsive updates on window resize
+        window.addEventListener('resize', debounce(updateNavigation, 200));
+    }
+
+    /**
+     * Handle cover click
+     */
+    function handleCoverClick(event) {
+        const cover = event.target.closest('.raiz-newsletter__cover');
+        if (!cover) return;
+
+        const index = parseInt(cover.dataset.index, 10);
+        showIssueDetails(issues[index]);
+    }
+
+    /**
+     * Handle keyboard navigation on covers
+     */
+    function handleCoverKeydown(event) {
+        const cover = event.target.closest('.raiz-newsletter__cover');
+        if (!cover) return;
+
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            const index = parseInt(cover.dataset.index, 10);
+            showIssueDetails(issues[index]);
+        }
+    }
+
+    /**
+     * Handle global keyboard shortcuts
+     */
+    function handleGlobalKeydown(event) {
+        if (event.key === 'ArrowLeft' && !elements.prevBtn.disabled) {
+            navigatePrevious();
+        } else if (event.key === 'ArrowRight' && !elements.nextBtn.disabled) {
+            navigateNext();
+        }
+    }
+
+    /**
+     * Navigate to previous set of covers
+     */
+    function navigatePrevious() {
+        if (currentIndex > 0) {
+            currentIndex--;
+            updateGalleryPosition();
+            updateNavigation();
+            announceNavigation('anterior');
+        }
+    }
+
+    /**
+     * Navigate to next set of covers
+     */
+    function navigateNext() {
+        const maxIndex = Math.max(0, issues.length - getVisibleCount());
+        if (currentIndex < maxIndex) {
+            currentIndex++;
+            updateGalleryPosition();
+            updateNavigation();
+            announceNavigation('próxima');
+        }
+    }
+
+    /**
+     * Get number of visible covers based on screen size
+     */
+    function getVisibleCount() {
+        const width = window.innerWidth;
+        if (width <= 480) return 1;
+        if (width <= 768) return 2;
+        return CONFIG.visibleCovers;
+    }
+
+    /**
+     * Update gallery position
+     */
+    function updateGalleryPosition() {
+        const visibleCount = getVisibleCount();
+        const coverWidth = 100 / visibleCount;
+        const offset = -(currentIndex * coverWidth);
+
+        elements.covers.style.transform = `translateX(${offset}%)`;
+    }
+
+    /**
+     * Update navigation button states
+     */
+    function updateNavigation() {
+        const visibleCount = getVisibleCount();
+        const maxIndex = Math.max(0, issues.length - visibleCount);
+
+        elements.prevBtn.disabled = currentIndex === 0;
+        elements.nextBtn.disabled = currentIndex >= maxIndex;
+    }
+
+    /**
+     * Announce navigation change to screen readers
+     */
+    function announceNavigation(direction) {
+        const announcement = document.createElement('div');
+        announcement.setAttribute('role', 'status');
+        announcement.setAttribute('aria-live', 'polite');
+        announcement.className = 'sr-only';
+        announcement.style.position = 'absolute';
+        announcement.style.left = '-10000px';
+        announcement.textContent = `Navegado para ${direction} página de newsletters`;
+
+        document.body.appendChild(announcement);
+        setTimeout(() => announcement.remove(), 1000);
+    }
+
+    /**
+     * Show issue details
+     */
+    function showIssueDetails(issue) {
+        selectedIssue = issue;
+
+        elements.details.innerHTML = `
+            <h2 class="raiz-newsletter__details-title">${escapeHtml(issue.title)}</h2>
+            <time class="raiz-newsletter__details-date" datetime="${escapeHtml(issue.publishedAt)}">
+                ${formatDate(issue.publishedAt)}
+            </time>
+            <p class="raiz-newsletter__details-description">${escapeHtml(issue.description)}</p>
+            ${issue.url ? `
+                <a
+                    href="${escapeHtml(issue.url)}"
+                    class="raiz-newsletter__details-link"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Ler a newsletter completa (abre numa nova janela)"
+                >
+                    Ler mais →
+                </a>
+            ` : ''}
+        `;
+
+        elements.details.classList.add('raiz-newsletter__details--visible');
+
+        // Scroll to details on mobile
+        if (window.innerWidth <= 768) {
+            setTimeout(() => {
+                elements.details.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
+        }
+    }
+
+    /**
+     * Cache management
+     */
+    function getFromCache() {
+        try {
+            const cached = localStorage.getItem('raizNewsletterCache');
+            if (!cached) return null;
+
+            const { data, timestamp } = JSON.parse(cached);
+            const age = Date.now() - timestamp;
+
+            if (age > CONFIG.cacheTime) {
+                localStorage.removeItem('raizNewsletterCache');
+                return null;
+            }
+
+            return data;
+        } catch (error) {
+            console.error('Cache error:', error);
+            return null;
+        }
+    }
+
+    function saveToCache(data) {
+        try {
+            const cacheData = {
+                data: data,
+                timestamp: Date.now()
+            };
+            localStorage.setItem('raizNewsletterCache', JSON.stringify(cacheData));
+        } catch (error) {
+            console.error('Error saving to cache:', error);
+        }
+    }
+
+    /**
+     * UI state functions
+     */
+    function showLoading() {
+        elements.loading.style.display = 'block';
+        elements.error.style.display = 'none';
+        elements.gallery.style.display = 'none';
+        elements.empty.style.display = 'none';
+    }
+
+    function showError() {
+        elements.loading.style.display = 'none';
+        elements.error.style.display = 'block';
+        elements.gallery.style.display = 'none';
+        elements.empty.style.display = 'none';
+    }
+
+    function showGallery() {
+        elements.loading.style.display = 'none';
+        elements.error.style.display = 'none';
+        elements.gallery.style.display = 'block';
+        elements.empty.style.display = 'none';
+    }
+
+    function showEmpty() {
+        elements.loading.style.display = 'none';
+        elements.error.style.display = 'none';
+        elements.gallery.style.display = 'none';
+        elements.empty.style.display = 'block';
+    }
+
+    /**
+     * Utility functions
+     */
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();
+</script>
