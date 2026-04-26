@@ -107,6 +107,7 @@ export const useImages = (folderPath: string) => {
   };
 
   useEffect(() => {
+    setImages([]);
     loadImages();
   }, [folderPath]);
 

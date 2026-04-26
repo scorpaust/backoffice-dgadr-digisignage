@@ -140,7 +140,9 @@ const ImageManager: React.FC<ImageManagerProps> = ({ compact, onFeedback }) => {
   };
 
   const oldHighlightIds =
-    activeTab === "highlights" ? getOldHighlightImageIds(images) : new Set<string>();
+    activeTab === "highlights" && !loading
+      ? getOldHighlightImageIds(images)
+      : new Set<string>();
 
   const handleUpdateImageLink = async (image: ImageItem, link: string) => {
     try {

@@ -31,9 +31,22 @@ const ImageCard: React.FC<ImageCardProps> = ({
   const [linkValue, setLinkValue] = useState(image.link || "");
   const [isEditingLink, setIsEditingLink] = useState(false);
 
+  const normalizeBibliotecaLink = (url: string): string => {
+    try {
+      const parsed = new URL(url.trim());
+      const biblionumber = parsed.searchParams.get("biblionumber");
+      if (parsed.hostname === "biblioteca.dgadr.pt" && biblionumber) {
+        return `https://biblioteca.dgadr.pt/cgi-bin/koha/opac-detail.pl?biblionumber=${biblionumber}`;
+      }
+    } catch {
+      // URL inválida, devolver como está
+    }
+    return url.trim();
+  };
+
   const handleSaveLink = () => {
     if (onUpdateLink) {
-      onUpdateLink(image, linkValue);
+      onUpdateLink(image, normalizeBibliotecaLink(linkValue));
     }
     setIsEditingLink(false);
   };
@@ -48,7 +61,7 @@ const ImageCard: React.FC<ImageCardProps> = ({
       <Image source={{ uri: image.url }} style={styles.imagePreview} />
       {isOld && (
         <View style={styles.oldOverlay}>
-          <Ionicons name="warning-outline" size={22} color="#ef4444" />
+          <Ionicons name="warning-outline" size={30} color="#fff" />
           <Text style={styles.oldOverlayText}>Capa antiga</Text>
           <Text style={styles.oldOverlaySubText}>a remover</Text>
         </View>
@@ -139,35 +152,34 @@ const styles = StyleSheet.create({
   },
   imageCardOld: {
     borderWidth: 1.5,
-    borderColor: "rgba(239, 68, 68, 0.6)",
+    borderColor: "rgba(239, 68, 68, 0.7)",
     backgroundColor: "rgba(239, 68, 68, 0.06)",
   },
   oldOverlay: {
     position: "absolute",
     top: layout.spacing.sm,
     left: layout.spacing.sm,
-    right: 40,
-    bottom: layout.spacing.sm,
-    backgroundColor: "rgba(239, 68, 68, 0.18)",
+    right: layout.spacing.sm,
+    height: 120,
+    backgroundColor: "rgba(180, 20, 20, 0.62)",
     borderRadius: layout.radius.sm,
     alignItems: "center",
     justifyContent: "center",
-    gap: 2,
+    gap: 4,
     pointerEvents: "none" as any,
-    height: 120,
+    zIndex: 1,
   },
   oldOverlayText: {
-    color: "#ef4444",
-    fontSize: 12,
+    color: "#fff",
+    fontSize: 13,
     fontWeight: "700",
     textAlign: "center",
   },
   oldOverlaySubText: {
-    color: "#ef4444",
-    fontSize: 10,
+    color: "rgba(255,255,255,0.8)",
+    fontSize: 11,
     fontWeight: "500",
     textAlign: "center",
-    opacity: 0.85,
   },
   imagePreview: {
     width: "100%",
