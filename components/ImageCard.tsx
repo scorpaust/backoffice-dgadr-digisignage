@@ -11,6 +11,16 @@ import { Ionicons } from "@expo/vector-icons";
 import { palette, layout } from "../constants/theme";
 import { ImageItem } from "../constants/Types";
 
+function normalizeBibliotecaLink(url: string): string {
+  const trimmed = url.trim();
+  if (!trimmed.includes("biblioteca.dgadr.pt")) return trimmed;
+  const match = trimmed.match(/[?&]biblionumber=([^&#]+)/);
+  if (match) {
+    return `https://biblioteca.dgadr.pt/cgi-bin/koha/opac-detail.pl?biblionumber=${match[1]}`;
+  }
+  return trimmed;
+}
+
 interface ImageCardProps {
   image: ImageItem;
   showLinkField?: boolean;
@@ -36,19 +46,6 @@ const ImageCard: React.FC<ImageCardProps> = ({
       setLinkValue(image.link || "");
     }
   }, [image.link]);
-
-  const normalizeBibliotecaLink = (url: string): string => {
-    try {
-      const parsed = new URL(url.trim());
-      const biblionumber = parsed.searchParams.get("biblionumber");
-      if (parsed.hostname === "biblioteca.dgadr.pt" && biblionumber) {
-        return `https://biblioteca.dgadr.pt/cgi-bin/koha/opac-detail.pl?biblionumber=${biblionumber}`;
-      }
-    } catch {
-      // URL inválida, devolver como está
-    }
-    return url.trim();
-  };
 
   const handleSaveLink = () => {
     const normalized = normalizeBibliotecaLink(linkValue);
