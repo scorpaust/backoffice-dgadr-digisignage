@@ -17,6 +17,7 @@ interface ImageCardProps {
   onDelete: (image: ImageItem) => void;
   onUpdateLink?: (image: ImageItem, link: string) => void;
   isDeleting?: boolean;
+  isOld?: boolean;
 }
 
 const ImageCard: React.FC<ImageCardProps> = ({
@@ -25,6 +26,7 @@ const ImageCard: React.FC<ImageCardProps> = ({
   onDelete,
   onUpdateLink,
   isDeleting = false,
+  isOld = false,
 }) => {
   const [linkValue, setLinkValue] = useState(image.link || "");
   const [isEditingLink, setIsEditingLink] = useState(false);
@@ -42,8 +44,15 @@ const ImageCard: React.FC<ImageCardProps> = ({
   };
 
   return (
-    <View style={styles.imageCard}>
+    <View style={[styles.imageCard, isOld && styles.imageCardOld]}>
       <Image source={{ uri: image.url }} style={styles.imagePreview} />
+      {isOld && (
+        <View style={styles.oldOverlay}>
+          <Ionicons name="warning-outline" size={22} color="#ef4444" />
+          <Text style={styles.oldOverlayText}>Capa antiga</Text>
+          <Text style={styles.oldOverlaySubText}>a remover</Text>
+        </View>
+      )}
 
       <View style={styles.imageInfo}>
         <Text style={styles.imageName} numberOfLines={1}>
@@ -127,6 +136,38 @@ const styles = StyleSheet.create({
     borderRadius: layout.radius.md,
     padding: layout.spacing.sm,
     position: "relative",
+  },
+  imageCardOld: {
+    borderWidth: 1.5,
+    borderColor: "rgba(239, 68, 68, 0.6)",
+    backgroundColor: "rgba(239, 68, 68, 0.06)",
+  },
+  oldOverlay: {
+    position: "absolute",
+    top: layout.spacing.sm,
+    left: layout.spacing.sm,
+    right: 40,
+    bottom: layout.spacing.sm,
+    backgroundColor: "rgba(239, 68, 68, 0.18)",
+    borderRadius: layout.radius.sm,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 2,
+    pointerEvents: "none" as any,
+    height: 120,
+  },
+  oldOverlayText: {
+    color: "#ef4444",
+    fontSize: 12,
+    fontWeight: "700",
+    textAlign: "center",
+  },
+  oldOverlaySubText: {
+    color: "#ef4444",
+    fontSize: 10,
+    fontWeight: "500",
+    textAlign: "center",
+    opacity: 0.85,
   },
   imagePreview: {
     width: "100%",

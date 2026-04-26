@@ -112,6 +112,36 @@ const ImageManager: React.FC<ImageManagerProps> = ({ compact, onFeedback }) => {
     );
   };
 
+  // Para a aba de destaques: imagens com link duplicado (mais antigas) ou todas
+  // exceto a mais recente (sem link) ficam marcadas como antigas.
+  const getOldHighlightImageIds = (imgs: ImageItem[]): Set<string> => {
+    const oldIds = new Set<string>();
+    const seenLinks = new Set<string>();
+    let hasSeenNoLink = false;
+
+    // imgs já ordenadas por updatedAt desc (mais recente primeiro)
+    for (const img of imgs) {
+      if (img.link) {
+        if (seenLinks.has(img.link)) {
+          oldIds.add(img.id);
+        } else {
+          seenLinks.add(img.link);
+        }
+      } else {
+        if (hasSeenNoLink) {
+          oldIds.add(img.id);
+        } else {
+          hasSeenNoLink = true;
+        }
+      }
+    }
+
+    return oldIds;
+  };
+
+  const oldHighlightIds =
+    activeTab === "highlights" ? getOldHighlightImageIds(images) : new Set<string>();
+
   const handleUpdateImageLink = async (image: ImageItem, link: string) => {
     try {
       const success = await updateImageMetadata(image.path, { link });
@@ -156,6 +186,7 @@ const ImageManager: React.FC<ImageManagerProps> = ({ compact, onFeedback }) => {
                 onDelete={handleDeleteImage}
                 onUpdateLink={handleUpdateImageLink}
                 isDeleting={deletingImageId === image.id}
+                isOld={oldHighlightIds.has(image.id)}
               />
             ))}
           </View>

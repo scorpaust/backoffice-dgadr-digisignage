@@ -1,0 +1,27 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  width: 100%;
+  background-color: #0f172a;
+  color: #fff;
+}
+
+#root {
+  min-height: 100vh;
+  height: auto;
+  width: 100vw;
+  display: block;
+  overflow-y: auto;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #0f172a;
+  }
+}

@@ -1,3 +1,4 @@
+import "./ImageUploadZone.css";
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import { View, Text, StyleSheet, Platform } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -115,11 +116,13 @@ const ImageUploadZone: React.FC<ImageUploadZoneProps> = ({
   return (
     <div
       ref={dropZoneRef}
-      style={{
-        ...styles.uploadZone,
-        ...(isDragOver && styles.uploadZoneDragOver),
-        ...(disabled && styles.uploadZoneDisabled),
-      }}
+      className={[
+        "upload-zone",
+        isDragOver ? "upload-zone--drag-over" : "",
+        disabled ? "upload-zone--disabled" : "",
+      ]
+        .filter(Boolean)
+        .join(" ")}
       onClick={handleClick}
     >
       <View style={styles.uploadContent}>
@@ -148,30 +151,6 @@ const ImageUploadZone: React.FC<ImageUploadZoneProps> = ({
 };
 
 const styles = StyleSheet.create({
-  uploadZone: {
-    borderWidth: 2,
-    borderStyle: "dashed",
-    borderColor: palette.accent,
-    borderRadius: layout.radius.lg,
-    padding: layout.spacing.xl,
-    minHeight: 200,
-    cursor: "pointer",
-    backgroundColor: "rgba(79, 70, 229, 0.05)",
-    transition: "all 0.2s ease-in-out",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  uploadZoneDragOver: {
-    borderColor: palette.accentSoft,
-    backgroundColor: "rgba(79, 70, 229, 0.15)",
-    transform: "scale(1.02)",
-  },
-  uploadZoneDisabled: {
-    borderColor: palette.textSecondary,
-    backgroundColor: "rgba(148, 163, 184, 0.05)",
-    cursor: "not-allowed",
-  },
   uploadContent: {
     display: "flex",
     flexDirection: "column",
