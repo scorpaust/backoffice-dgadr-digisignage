@@ -14,7 +14,7 @@ import { ImageItem } from "../constants/Types";
 function normalizeBibliotecaLink(url: string): string {
   const trimmed = url.trim();
   if (!trimmed.includes("biblioteca.dgadr.pt")) return trimmed;
-  const match = trimmed.match(/[?&]biblionumber=([^&#]+)/);
+  const match = trimmed.match(/[?&]biblionumber=([^&#?]+)/);
   if (match) {
     return `https://biblioteca.dgadr.pt/cgi-bin/koha/opac-detail.pl?biblionumber=${match[1]}`;
   }
@@ -123,7 +123,7 @@ const ImageCard: React.FC<ImageCardProps> = ({
               onPress={() => setIsEditingLink(true)}
             >
               <Text style={styles.linkText} numberOfLines={1}>
-                {image.link || "Clique para adicionar link"}
+                {linkValue || "Clique para adicionar link"}
               </Text>
               <Ionicons name="pencil" size={14} color={palette.textSecondary} />
             </TouchableOpacity>
