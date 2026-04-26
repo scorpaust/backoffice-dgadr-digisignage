@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -31,6 +31,12 @@ const ImageCard: React.FC<ImageCardProps> = ({
   const [linkValue, setLinkValue] = useState(image.link || "");
   const [isEditingLink, setIsEditingLink] = useState(false);
 
+  useEffect(() => {
+    if (!isEditingLink) {
+      setLinkValue(image.link || "");
+    }
+  }, [image.link]);
+
   const normalizeBibliotecaLink = (url: string): string => {
     try {
       const parsed = new URL(url.trim());
@@ -45,8 +51,10 @@ const ImageCard: React.FC<ImageCardProps> = ({
   };
 
   const handleSaveLink = () => {
+    const normalized = normalizeBibliotecaLink(linkValue);
+    setLinkValue(normalized);
     if (onUpdateLink) {
-      onUpdateLink(image, normalizeBibliotecaLink(linkValue));
+      onUpdateLink(image, normalized);
     }
     setIsEditingLink(false);
   };
